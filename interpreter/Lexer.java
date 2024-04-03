@@ -197,7 +197,7 @@ public class Lexer {
         } else if(value.equals("FALSE")) {
             addToken(FALSE, Boolean.parseBoolean(value));
         } else {
-            addToken(STRING, value);
+            addToken(TYPESTRING, value);
         }
     }
 
