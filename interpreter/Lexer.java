@@ -27,7 +27,7 @@ public class Lexer {
         keywords.put("OR", OR);
         keywords.put("NOT", NOT);
         keywords.put("FLOAT", FLOAT);
-        keywords.put("CHAR", CHAR);
+        keywords.put("CHAR", TokenType.TYPECHAR);
         keywords.put("BOOL", BOOL);
         keywords.put("INT", INT);
         keywords.put("DISPLAY", DISPLAY);
@@ -126,6 +126,7 @@ public class Lexer {
                 line++;
                 break;
             case '"': string(); break;
+            case '\'': chars(); break;
             default:
                 if(isDigit(c)) {
                     number();
@@ -199,6 +200,24 @@ public class Lexer {
         } else {
             addToken(TYPESTRING, value);
         }
+    }
+
+    private void chars() {
+        while(peek() != '\'' && !isAtEnd()) {
+            if(peek() == '\n') line++;
+            advance();
+        }
+
+        if(current - start != 2) {
+            Code.error(line, "Unterminated Character.");
+            return;
+        }
+
+        // consuming the ending '
+        advance();
+
+        char value = source.charAt(start+1);
+        addToken(TYPECHAR, value);
     }
 
     private boolean match(char expected) {

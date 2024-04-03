@@ -15,7 +15,7 @@ enum TokenType {
     OR, AND, NOT,
 
     //data types
-    INT, FLOAT, BOOL, CHAR, STRING,
+    INT, FLOAT, BOOL, STRING, CHAR,
 
     TYPESTRING, TYPEINT, TYPEFLOAT, TYPEBOOL, TYPECHAR,
 

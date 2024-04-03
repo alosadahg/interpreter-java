@@ -54,6 +54,8 @@ class Interpreter implements Expr.Visitor<Object>,
         Object left = expr.left.accept(this);
         Object right = expr.right.accept(this);
         switch (expr.operator.type) {
+            case CONCAT:
+                return (stringify(left) + stringify(right));
             case MINUS:
                 checkNumberOperands(expr.operator, left, right);
                 return (double) left - (double) right;
