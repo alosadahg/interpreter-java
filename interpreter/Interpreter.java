@@ -126,6 +126,7 @@ class Interpreter implements Expr.Visitor<Object>,
     }
 
     private boolean isEqual(Object a, Object b) {
+        System.out.println("a: " + a + " | b: " + b);
         if (a == null && b == null)
             return true;
         if (a == null)

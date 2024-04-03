@@ -104,9 +104,9 @@ public class Parser {
 
     private Expr primary() {
         if (match(FALSE))
-            return new Expr.Literal("FALSE");
+            return new Expr.Literal(false);
         if (match(TRUE))
-            return new Expr.Literal("TRUE");
+            return new Expr.Literal(true);
         if (match(NULL))
             new Expr.Literal(null);
 

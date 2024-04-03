@@ -193,9 +193,9 @@ public class Lexer {
 
         String value = source.substring(start+1, current-1);
         if(value.equals("TRUE")) {
-            addToken(TRUE, value);
+            addToken(TRUE, Boolean.parseBoolean(value));
         } else if(value.equals("FALSE")) {
-            addToken(FALSE, value);
+            addToken(FALSE, Boolean.parseBoolean(value));
         } else {
             addToken(STRING, value);
         }
