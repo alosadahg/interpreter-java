@@ -35,6 +35,7 @@ public class Lexer {
         keywords.put("NULL", NULL);
     }
 
+    // FLOAT var = 5.6
     public Lexer(String source) {
         this.source = source;
     }
@@ -156,9 +157,10 @@ public class Lexer {
             advance();
 
             while(isDigit(peek())) advance();
-            //addToken(FLOAT, Double.parseDouble(source.substring(start, current)));
-        } //else {
             addToken(TYPEFLOAT, Double.parseDouble(source.substring(start, current)));
+            return;
+        } //else {
+            addToken(TYPEINT, Integer.parseInt(source.substring(start, current)));
         //}
     }
 

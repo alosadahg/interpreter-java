@@ -1,2 +1,1 @@
-INT var = 4
-DISPLAY: var
+DISPLAY: 4.3+5.7
