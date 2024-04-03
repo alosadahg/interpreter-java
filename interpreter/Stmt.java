@@ -6,6 +6,10 @@ abstract class Stmt {
     interface Visitor<R> {
       R visitExpressionStmt(Expression stmt);
       R visitDisplayStmt(Display stmt);
+      R visitIntStmt(Int stmt);
+      R visitFloatStmt(Float stmt);
+      R visitCharStmt(Char stmt);
+      R visitStringStmt(String stmt);
     }
     static class Expression extends Stmt {
         Expression(Expr expression) {
@@ -30,6 +34,62 @@ abstract class Stmt {
         }
 
         final Expr expression;
+    }
+    static class Int extends Stmt {
+        Int(Token name, Expr intializer) {
+            this.name = name;
+            this.intializer = intializer;
+        }
+
+        @Override
+        <R> R accept(Visitor<R> visitor) {
+        return visitor.visitIntStmt(this);
+        }
+
+        final Token name;
+        final Expr intializer;
+    }
+    static class Float extends Stmt {
+        Float(Token name, Expr initializer) {
+            this.name = name;
+            this.initializer = initializer;
+        }
+
+        @Override
+        <R> R accept(Visitor<R> visitor) {
+        return visitor.visitFloatStmt(this);
+        }
+
+        final Token name;
+        final Expr initializer;
+    }
+    static class Char extends Stmt {
+        Char(Token name, Expr initializer) {
+            this.name = name;
+            this.initializer = initializer;
+        }
+
+        @Override
+        <R> R accept(Visitor<R> visitor) {
+        return visitor.visitCharStmt(this);
+        }
+
+        final Token name;
+        final Expr initializer;
+    }
+    static class String extends Stmt {
+        String(Token name, Expr initializer) {
+            this.name = name;
+            this.initializer = initializer;
+        }
+
+        @Override
+        <R> R accept(Visitor<R> visitor) {
+        return visitor.visitStringStmt(this);
+        }
+
+        final Token name;
+        final Expr initializer;
     }
 
     abstract <R> R accept(Visitor<R> visitor);

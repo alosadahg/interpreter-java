@@ -19,8 +19,8 @@ public class Parser {
     List<Stmt> parse() {
         List<Stmt> statements = new ArrayList<>();
         while (!isAtEnd()) {
-            statements.add(statement());
-            //statements.add(declaration());
+            //statements.add(statement());
+            statements.add(declaration());
         }
 
         return statements;
@@ -30,16 +30,19 @@ public class Parser {
         return equality();
     }
 
-    // private Stmt declaration() {
-    //     try {
-    //         if(match(INT)) return varDeclaration();
+    private Stmt declaration() {
+        try {
+           // if(match(INT)) return varDeclaration(INT);
+            if(match(FLOAT)) return varDeclaration("FLOAT");
+            // if(match(CHAR)) return varDeclaration(CHAR);
+            // if(match(STRING)) return varDeclaration(STRING);
 
-    //         return statement();
-    //     } catch(ParseError error) {
-    //         synchronize();
-    //         return null;
-    //     }
-    // }
+            return statement();
+        } catch(ParseError error) {
+            synchronize();
+            return null;
+        }
+    }
 
     private Stmt statement() {
         if (match(DISPLAY) && match(COLON)) return displayStatement();
@@ -50,6 +53,21 @@ public class Parser {
       private Stmt displayStatement() {
         Expr value = expression();
         return new Stmt.Display(value);
+      }
+
+      private Stmt varDeclaration(String type) {
+        Token name = consume(IDENTIFIER, "Expect variable name.");
+
+        Expr initializer = null;
+        if(match(ASSIGN)) {
+            initializer = expression();
+        }
+
+        if(type.equals("FLOAT")) {
+            return new Stmt.Float(name, initializer);
+        }
+        
+        return null;
       }
 
       private Stmt expressionStatement() {
@@ -125,6 +143,11 @@ public class Parser {
         if (match(TYPEFLOAT, TYPEINT, TYPESTRING)) {
             return new Expr.Literal(previous().literal);
         }
+
+        if (match(IDENTIFIER)) {
+            return new Expr.Variable(previous());    
+        }
+
         if (match(LEFT_PAREN)) {
             Expr expr = expression();
             consume(RIGHT_PAREN, "Expect ')' after the expression.");

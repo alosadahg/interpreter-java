@@ -18,11 +18,16 @@ public class GenerateAst {
                 "Binary: Expr left, Token operator, Expr right",
                 "Grouping: Expr expression",
                 "Literal: Object value",
-                "Unary: Token operator, Expr right"));
+                "Unary: Token operator, Expr right",
+                "Variable: Token name"));
 
         defineAst(outputDir, "Stmt", Arrays.asList(
                 "Expression: Expr expression",
-                "Display: Expr expression"));
+                "Display: Expr expression",
+                "Int: Token name, Expr intializer",
+                "Float: Token name, Expr initializer",
+                "Char: Token name, Expr initializer",
+                "String: Token name, Expr initializer"));
     }
 
     private static void defineAst(String outputDir, String baseName, List<String> types) throws IOException {
