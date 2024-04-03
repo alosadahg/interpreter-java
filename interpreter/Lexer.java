@@ -27,12 +27,13 @@ public class Lexer {
         keywords.put("OR", OR);
         keywords.put("NOT", NOT);
         keywords.put("FLOAT", FLOAT);
-        keywords.put("CHAR", TokenType.TYPECHAR);
+        keywords.put("CHAR", CHAR);
         keywords.put("BOOL", BOOL);
         keywords.put("INT", INT);
         keywords.put("DISPLAY", DISPLAY);
         keywords.put("SCAN", SCAN);
         keywords.put("NULL", NULL);
+        keywords.put("STRING", STRING);
     }
 
     // FLOAT var = 5.6

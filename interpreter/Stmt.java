@@ -1,5 +1,7 @@
 package interpreter;
 
+import java.util.List;
+
 abstract class Stmt {
     interface Visitor<R> {
       R visitExpressionStmt(Expression stmt);
@@ -8,6 +10,7 @@ abstract class Stmt {
       R visitFloatStmt(Float stmt);
       R visitCharStmt(Char stmt);
       R visitStringStmt(String stmt);
+      R visitBoolStmt(Bool stmt);
     }
     static class Expression extends Stmt {
         Expression(Expr expression) {
@@ -84,6 +87,20 @@ abstract class Stmt {
         @Override
         <R> R accept(Visitor<R> visitor) {
         return visitor.visitStringStmt(this);
+        }
+
+        final Token name;
+        final Expr initializer;
+    }
+    static class Bool extends Stmt {
+        Bool(Token name, Expr initializer) {
+            this.name = name;
+            this.initializer = initializer;
+        }
+
+        @Override
+        <R> R accept(Visitor<R> visitor) {
+        return visitor.visitBoolStmt(this);
         }
 
         final Token name;

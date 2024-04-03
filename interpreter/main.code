@@ -1,1 +1,7 @@
-DISPLAY: 4.3+5.7
+CHAR char = 'e'
+STRING string = "Hell0"
+INT int = 5
+FLOAT float = 6.7
+BOOL bool = "TRUE"
+DISPLAY: "char: " & char & " | " & "string: " & string &  " | " & "int: " & int & " | " & "float: " 
+& float & " | " & "bool: " & bool  

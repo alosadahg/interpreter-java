@@ -10,6 +10,7 @@ import interpreter.Expr.Grouping;
 import interpreter.Expr.Literal;
 import interpreter.Expr.Unary;
 import interpreter.Expr.Variable;
+import interpreter.Stmt.Bool;
 import interpreter.Stmt.Char;
 import interpreter.Stmt.Display;
 import interpreter.Stmt.Float;
@@ -35,9 +36,29 @@ class Interpreter implements Expr.Visitor<Object>,
         return environment.get(expr.name);
     }
 
+    
+
+    @Override
+    public Void visitBoolStmt(Bool stmt) {
+        Object value = null;
+        if (stmt.initializer != null) {
+            value = evaluate(stmt.initializer);
+        }
+
+        environment.define(stmt.name.lexeme, value);
+        // System.out.println("var = " + stmt.initializer.accept(this));
+        return null;
+    }
+
     @Override
     public Void visitCharStmt(Char stmt) {
-        // TODO Auto-generated method stub
+        Object value = null;
+        if (stmt.initializer != null) {
+            value = evaluate(stmt.initializer);
+        }
+
+        environment.define(stmt.name.lexeme, value);
+        // System.out.println("var = " + stmt.initializer.accept(this));
         return null;
     }
 
@@ -55,13 +76,25 @@ class Interpreter implements Expr.Visitor<Object>,
 
     @Override
     public Void visitIntStmt(Int stmt) {
-        // TODO Auto-generated method stub
+        Object value = null;
+        if (stmt.intializer != null) {
+            value = evaluate(stmt.intializer);
+        }
+
+        environment.define(stmt.name.lexeme, value);
+        // System.out.println("var = " + stmt.initializer.accept(this));
         return null;
     }
 
     @Override
     public Void visitStringStmt(interpreter.Stmt.String stmt) {
-        // TODO Auto-generated method stub
+        Object value = null;
+        if (stmt.initializer != null) {
+            value = evaluate(stmt.initializer);
+        }
+
+        environment.define(stmt.name.lexeme, value);
+        // System.out.println("var = " + stmt.initializer.accept(this));
         return null;
     }
 

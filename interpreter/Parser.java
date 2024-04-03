@@ -32,10 +32,11 @@ public class Parser {
 
     private Stmt declaration() {
         try {
-           // if(match(INT)) return varDeclaration(INT);
+            if(match(INT)) return varDeclaration("INT");
             if(match(FLOAT)) return varDeclaration("FLOAT");
-            // if(match(CHAR)) return varDeclaration(CHAR);
-            // if(match(STRING)) return varDeclaration(STRING);
+            if(match(CHAR)) return varDeclaration("CHAR");
+            if(match(STRING)) return varDeclaration("STRING");
+            if(match(BOOL)) return varDeclaration("BOOL");
 
             return statement();
         } catch(ParseError error) {
@@ -65,6 +66,18 @@ public class Parser {
 
         if(type.equals("FLOAT")) {
             return new Stmt.Float(name, initializer);
+        }
+        if(type.equals("INT")) {
+            return new Stmt.Int(name, initializer);
+        }
+        if(type.equals("STRING")) {
+            return new Stmt.String(name, initializer);
+        }
+        if(type.equals("CHAR")) {
+            return new Stmt.Char(name, initializer);
+        }
+        if(type.equals("BOOL")) {
+            return new Stmt.Char(name, initializer);
         }
         
         return null;
