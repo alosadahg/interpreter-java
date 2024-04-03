@@ -1,7 +1,6 @@
 BEGIN CODE
 CHAR char = 'e'
-STRING string 
-SCAN: string
+STRING string = "hi"
 INT int = 5, int2 = 7
 int = 8
 FLOAT float = 6.7
