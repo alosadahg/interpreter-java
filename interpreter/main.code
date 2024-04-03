@@ -6,14 +6,15 @@ INT int = 5
 int = 8
 FLOAT float = 6.7
 BOOL bool = "TRUE"
-DISPLAY: "char: " & char & " | " & "string: " & string &  " | " & "int: " & int & " | " & "float: " 
-& float & " | " & "bool: " & bool  
+DISPLAY: "char: " & char & " " & [#] & " string: " & string & " " &  [[] & "int: " & int & []] & " float: " 
+& float & " " & [$] & "bool: " & bool  
 END CODE
 
 BEGIN CODE
 CHAR char = 'c'
 STRING string = "Hell0 world!"
-INT int = 6
+INT int
+SCAN: int
 FLOAT float = 7.8
 BOOL bool = "FALSE"
 DISPLAY: "char: " & char & " | " & "string: " & string &  " | " & "int: " & int & " | " & "float: " 

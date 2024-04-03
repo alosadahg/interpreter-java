@@ -192,7 +192,7 @@ public class Parser {
         if (match(NULL))
             new Expr.Literal(null);
 
-        if (match(TYPEFLOAT, TYPEINT, TYPESTRING, TYPECHAR)) {
+        if (match(TYPEFLOAT, TYPEINT, TYPESTRING, TYPECHAR, ESCAPECHAR)) {
             return new Expr.Literal(previous().literal);
         }
 

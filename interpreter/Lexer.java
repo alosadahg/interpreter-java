@@ -11,9 +11,31 @@ public class Lexer {
     private final String source;
     private final List<Token> tokens = new ArrayList<>();
     private static final Map<String, TokenType> keywords;
+    private static final List<Character> characters = new ArrayList<>();
     private int start = 0;
     private int current = 0;
     private int line;
+
+    static {
+        characters.add('(');
+        characters.add(')');
+        characters.add('[');
+        characters.add(']');
+        characters.add(',');
+        characters.add(':');
+        characters.add('.');
+        characters.add('-');
+        characters.add('+');
+        characters.add('/');
+        characters.add('*');
+        characters.add('$');
+        characters.add('%');
+        characters.add('&');
+        characters.add('=');
+        characters.add('<');
+        characters.add('>');
+        characters.add('#');
+    }
 
     static {
         keywords = new HashMap<>();
@@ -55,6 +77,31 @@ public class Lexer {
         return current >= source.length();
     }
 
+    private void escapeChar() {
+        while(peek() != ']' && !isAtEnd()) {
+            if(peek() == '\n') return;
+            advance();
+        }
+
+        if(current - start != 2) {
+            advance();
+            if(peek() !=']') {
+            Code.error(line, "Invalid Escape Character.");
+            return;
+            }
+        }
+
+        // consuming the ending ]
+        advance();
+
+        char value = source.charAt(start+1);
+        if(characters.contains(value)) {
+            addToken(ESCAPECHAR, value);
+            return;
+        }
+        Code.error(line, "Invalid Escape Character.");
+    }
+
     private void scanToken() {
         char c = advance();
         switch (c) {
@@ -65,10 +112,7 @@ public class Lexer {
                 addToken(RIGHT_PAREN);
                 break;
             case '[':
-                addToken(LEFT_BRACKET);
-                break;
-            case ']':
-                addToken(RIGHT_BRACKET);
+                escapeChar();
                 break;
             case ',':
                 addToken(COMMA);
