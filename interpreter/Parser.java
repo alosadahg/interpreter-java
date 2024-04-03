@@ -4,6 +4,7 @@ import static interpreter.TokenType.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.zip.CheckedInputStream;
 
 public class Parser {
     private static class ParseError extends RuntimeException {
@@ -84,9 +85,9 @@ public class Parser {
     private Expr term() {
         Expr expr = factor();
 
-        while (match(MINUS, PLUS, CONCAT)) {
+        while (match(MINUS, PLUS, CONCAT, NEW_LINE)) {
             Token operator = previous();
-            Expr right = factor();
+            Expr right = unary();
             expr = new Expr.Binary(expr, operator, right);
         }
 
@@ -96,7 +97,7 @@ public class Parser {
     private Expr factor() {
         Expr expr = unary();
 
-        while (match(STAR, SLASH, MODULO)) {
+        while (match(STAR, SLASH, MODULO, NEW_LINE)) {
             Token operator = previous();
             Expr right = unary();
             expr = new Expr.Binary(expr, operator, right);
@@ -105,7 +106,7 @@ public class Parser {
     }
 
     private Expr unary() {
-        if (match(NOT, MINUS, PLUS)) {
+        if (match(NOT, MINUS, PLUS, NEW_LINE)) {
             Token operator = previous();
             Expr right = unary();
             return new Expr.Unary(operator, right);
@@ -122,9 +123,30 @@ public class Parser {
         if (match(NULL))
             new Expr.Literal(null);
 
+//        if (match(TYPEFLOAT, TYPEINT, TYPESTRING, TYPECHAR)) {
+//            return new Expr.Literal(previous().getLiteral());
+//        }
+
         if (match(TYPEFLOAT, TYPEINT, TYPESTRING, TYPECHAR)) {
-            return new Expr.Literal(previous().literal);
+            Token objectToken = previous();
+            if (check(NEW_LINE) && !isAtEnd()) {
+                advance();
+                if (!isAtEnd()) {
+                    Token nextToken = peek();
+                    return new Expr.Binary(new Expr.Literal(objectToken.getLiteral()), new Token(NEW_LINE, null, "\n", -1), primary());
+                } else {
+                    System.out.print(objectToken.getLiteral());
+                    return new Expr.Literal(new Token(NEW_LINE, null, null, -1));
+                }
+            } else {
+                return new Expr.Literal(objectToken.getLiteral());
+            }
         }
+
+        if(previous().type.equals(NEW_LINE)){
+            return new Expr.Literal("");
+        }
+
         if (match(LEFT_PAREN)) {
             Expr expr = expression();
             consume(RIGHT_PAREN, "Expect ')' after the expression.");

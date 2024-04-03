@@ -90,7 +90,7 @@ public class Lexer {
                 addToken(STAR);
                 break;
             case '$':
-                addToken(NEW_LINE);
+                addToken(NEW_LINE, "\n");
                 line++;
                 break;
             case '%':

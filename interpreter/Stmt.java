@@ -1,9 +1,11 @@
 package interpreter;
 
+import java.util.List;
+
 abstract class Stmt {
-    interface Visitor<h> {
-      h visitExpressionStmt(Expression stmt);
-      h visitDisplayStmt(Display stmt);
+    interface Visitor<R> {
+      R visitExpressionStmt(Expression stmt);
+      R visitDisplayStmt(Display stmt);
     }
     static class Expression extends Stmt {
         Expression(Expr expression) {

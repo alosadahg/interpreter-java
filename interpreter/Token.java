@@ -3,7 +3,7 @@ package interpreter;
 public class Token {
     final TokenType type;
     final String lexeme;
-    final Object literal;
+    private Object literal;
     final int line;
     public Token(TokenType type, String lexeme, Object literal, int line) {
         this.type = type;
@@ -12,9 +12,15 @@ public class Token {
         this.line = line;
     }
 
-    
+    public void setLiteral(Object literal) {
+        this.literal = literal;
+    }
+
     @Override
     public String toString() {
+        if(type == TokenType.NEW_LINE){
+            return "\n";
+        }
         return "Token [type: " + type + " | lexeme: " + lexeme + " | literal: " + literal + " | line: " + line + "]";
     }
 

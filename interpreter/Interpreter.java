@@ -1,5 +1,6 @@
 package interpreter;
 
+import java.sql.SQLOutput;
 import java.util.List;
 
 import javax.management.RuntimeErrorException;
@@ -53,9 +54,12 @@ class Interpreter implements Expr.Visitor<Object>,
     public Object visitBinaryExpr(Binary expr) {
         Object left = expr.left.accept(this);
         Object right = expr.right.accept(this);
+
         switch (expr.operator.type) {
+            case NEW_LINE:
+                return (stringify(left) + "\n" + stringify(right));
             case CONCAT:
-                return (stringify(left) + stringify(right));
+                return stringify(left) + stringify(right);
             case MINUS:
                 checkNumberOperands(expr.operator, left, right);
                 return (double) left - (double) right;
@@ -120,6 +124,9 @@ class Interpreter implements Expr.Visitor<Object>,
     @Override
     public Object visitLiteralExpr(Literal expr) {
         // System.out.println(expr.value.getClass().getName());
+        if(expr.value.equals("\n")) {
+            System.out.println();
+        }
         return expr.value;
     }
 
@@ -136,6 +143,8 @@ class Interpreter implements Expr.Visitor<Object>,
                 return +(double) right;
             case NOT:
                 return !isTruthy(right);
+            case NEW_LINE:
+                return "\n" + stringify(right);
         }
 
         return null;
@@ -164,7 +173,6 @@ class Interpreter implements Expr.Visitor<Object>,
     }
 
     private boolean isEqual(Object a, Object b) {
-        System.out.println("a: " + a + " | b: " + b);
         if (a == null && b == null)
             return true;
         if (a == null)
