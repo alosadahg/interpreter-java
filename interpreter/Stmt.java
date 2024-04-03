@@ -7,6 +7,7 @@ abstract class Stmt {
       R visitBlockStmt(Block stmt);
       R visitExpressionStmt(Expression stmt);
       R visitDisplayStmt(Display stmt);
+      R visitScanStmt(Scan stmt);
       R visitIntStmt(Int stmt);
       R visitFloatStmt(Float stmt);
       R visitCharStmt(Char stmt);
@@ -48,6 +49,20 @@ abstract class Stmt {
         }
 
         final Expr expression;
+    }
+    static class Scan extends Stmt {
+        Scan(Token name, Expr initializer) {
+            this.name = name;
+            this.initializer = initializer;
+        }
+
+        @Override
+        <R> R accept(Visitor<R> visitor) {
+        return visitor.visitScanStmt(this);
+        }
+
+        final Token name;
+        final Expr initializer;
     }
     static class Int extends Stmt {
         Int(Token name, Expr intializer) {

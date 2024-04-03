@@ -1,7 +1,11 @@
 package interpreter;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Scanner;
 
 import javax.management.RuntimeErrorException;
 
@@ -17,6 +21,7 @@ import interpreter.Stmt.Char;
 import interpreter.Stmt.Display;
 import interpreter.Stmt.Float;
 import interpreter.Stmt.Int;
+import interpreter.Stmt.Scan;
 
 class Interpreter implements Expr.Visitor<Object>,
         Stmt.Visitor<Void> {
@@ -244,6 +249,25 @@ class Interpreter implements Expr.Visitor<Object>,
         System.out.println(stringify(value));
         return null;
     }
+
+    private Object scanInput() throws IOException {
+    InputStreamReader input = new InputStreamReader(System.in);
+    BufferedReader reader = new BufferedReader(input);
+    String line = reader.readLine();
+    return line;
+}
+
+@Override
+public Void visitScanStmt(Scan stmt) {
+    try {
+        Object scannedValue = scanInput();
+        environment.assign(stmt.name, scannedValue);
+    } catch (IOException e) {
+        e.printStackTrace();
+    }
+    return null;
+}
+
 
     @Override
     public Object visitLiteralExpr(Literal expr) {

@@ -26,6 +26,7 @@ public class GenerateAst {
                 "Block: List<Stmt> statements",
                 "Expression: Expr expression",
                 "Display: Expr expression",
+                "Scan: Token name, Expr initializer",
                 "Int: Token name, Expr intializer",
                 "Float: Token name, Expr initializer",
                 "Char: Token name, Expr initializer",

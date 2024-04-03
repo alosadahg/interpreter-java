@@ -66,8 +66,15 @@ public class Parser {
     private Stmt statement() {
         if (match(DISPLAY) && match(COLON)) return displayStatement();
         if (match(BEGIN) && match(CODE)) return new Stmt.Block(block());
+        if (match(SCAN) && match(COLON)) return scanStatement();
     
         return expressionStatement();
+      }
+
+      private Stmt scanStatement() {
+        Token variable = consume(IDENTIFIER, "Expect variable name after SCAN:");
+
+        return new Stmt.Scan(variable, null);
       }
 
       private Stmt displayStatement() {
@@ -163,6 +170,7 @@ public class Parser {
             Expr right = unary();
             expr = new Expr.Binary(expr, operator, right);
         }
+        
         return expr;
     }
 
