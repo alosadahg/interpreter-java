@@ -20,6 +20,7 @@ public class Parser {
         List<Stmt> statements = new ArrayList<>();
         while (!isAtEnd()) {
             statements.add(statement());
+            //statements.add(declaration());
         }
 
         return statements;
@@ -28,6 +29,17 @@ public class Parser {
     private Expr expression() {
         return equality();
     }
+
+    // private Stmt declaration() {
+    //     try {
+    //         if(match(INT)) return varDeclaration();
+
+    //         return statement();
+    //     } catch(ParseError error) {
+    //         synchronize();
+    //         return null;
+    //     }
+    // }
 
     private Stmt statement() {
         if (match(DISPLAY) && match(COLON)) return displayStatement();
@@ -110,7 +122,7 @@ public class Parser {
         if (match(NULL))
             new Expr.Literal(null);
 
-        if (match(FLOAT, INT, STRING)) {
+        if (match(TYPEFLOAT, TYPEINT, TYPESTRING)) {
             return new Expr.Literal(previous().literal);
         }
         if (match(LEFT_PAREN)) {

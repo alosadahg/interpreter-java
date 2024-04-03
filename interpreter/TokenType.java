@@ -17,6 +17,8 @@ enum TokenType {
     //data types
     STRING, INT, FLOAT, BOOL, CHAR, 
 
+    TYPESTRING, TYPEINT, TYPEFLOAT, TYPEBOOL, TYPECHAR,
+
     IDENTIFIER, NULL,
 
     EOF

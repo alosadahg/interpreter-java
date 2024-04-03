@@ -8,10 +8,46 @@ import interpreter.Expr.Binary;
 import interpreter.Expr.Grouping;
 import interpreter.Expr.Literal;
 import interpreter.Expr.Unary;
+import interpreter.Expr.Variable;
+import interpreter.Stmt.Char;
 import interpreter.Stmt.Display;
+import interpreter.Stmt.Float;
+import interpreter.Stmt.Int;
 
 class Interpreter implements Expr.Visitor<Object>,
         Stmt.Visitor<Void> {
+
+    
+
+    @Override
+    public Object visitVariableExpr(Variable expr) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Void visitCharStmt(Char stmt) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Void visitFloatStmt(Float stmt) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Void visitIntStmt(Int stmt) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Void visitStringStmt(interpreter.Stmt.String stmt) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
     @Override
     public Object visitBinaryExpr(Binary expr) {
