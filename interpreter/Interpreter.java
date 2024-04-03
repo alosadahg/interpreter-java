@@ -82,6 +82,8 @@ class Interpreter implements Expr.Visitor<Object>,
         Number leftValue = getArithmetic(left);
         Number rightValue = getArithmetic(right);
         switch (expr.operator.type) {
+            case CONCAT:
+                return (stringify(left) + stringify(right));
             case MINUS:
                 if (leftValue instanceof Integer && rightValue instanceof Integer) {
                     return leftValue.intValue() - rightValue.intValue();

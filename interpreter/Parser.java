@@ -102,7 +102,7 @@ public class Parser {
     private Expr term() {
         Expr expr = factor();
 
-        while (match(MINUS, PLUS)) {
+        while (match(MINUS, PLUS, CONCAT)) {
             Token operator = previous();
             Expr right = factor();
             expr = new Expr.Binary(expr, operator, right);
@@ -140,7 +140,7 @@ public class Parser {
         if (match(NULL))
             new Expr.Literal(null);
 
-        if (match(TYPEFLOAT, TYPEINT, TYPESTRING)) {
+        if (match(TYPEFLOAT, TYPEINT, TYPESTRING, TYPECHAR)) {
             return new Expr.Literal(previous().literal);
         }
 
@@ -212,7 +212,7 @@ public class Parser {
 
             switch (peek().type) {
                 case INT:
-                case CHAR:
+                case TYPECHAR:
                 case BOOL:
                 case IF:
                 case WHILE:
