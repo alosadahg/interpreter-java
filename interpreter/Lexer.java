@@ -158,7 +158,7 @@ public class Lexer {
             while(isDigit(peek())) advance();
             //addToken(FLOAT, Double.parseDouble(source.substring(start, current)));
         } //else {
-            addToken(FLOAT, Double.parseDouble(source.substring(start, current)));
+            addToken(TYPEFLOAT, Double.parseDouble(source.substring(start, current)));
         //}
     }
 
@@ -197,7 +197,7 @@ public class Lexer {
         } else if(value.equals("FALSE")) {
             addToken(FALSE, Boolean.parseBoolean(value));
         } else {
-            addToken(STRING, value);
+            addToken(TYPESTRING, value);
         }
     }
 
