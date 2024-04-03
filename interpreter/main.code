@@ -1,6 +1,7 @@
 BEGIN CODE
 CHAR char = 'e'
-STRING string = "Hell0"
+STRING string 
+SCAN string
 INT int = 5, int2 = 7
 int = 8
 FLOAT float = 6.7
