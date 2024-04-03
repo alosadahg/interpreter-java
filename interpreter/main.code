@@ -1,11 +1,12 @@
 BEGIN CODE
 CHAR char = 'e'
-STRING string = "hi"
-INT int = 5, int2 = 7
+STRING string
+SCAN: string
+INT int = 5
 int = 8
 FLOAT float = 6.7
 BOOL bool = "TRUE"
-DISPLAY: "char: " & char & " | " & "string: " & string &  " | " & "int: " & int2 & " | " & "float: " 
+DISPLAY: "char: " & char & " | " & "string: " & string &  " | " & "int: " & int & " | " & "float: " 
 & float & " | " & "bool: " & bool  
 END CODE
 
