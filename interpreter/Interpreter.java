@@ -15,11 +15,10 @@ class Interpreter implements Expr.Visitor<Object>,
 
     @Override
     public Object visitBinaryExpr(Binary expr) {
-        Object left = expr.left;
-        Object right = expr.right;
+        Object left = expr.left.accept(this);
+        Object right = expr.right.accept(this);
         switch (expr.operator.type) {
             case MINUS:
-                // System.out.println("left: " + left + " | right: " + right.toString());
                 checkNumberOperands(expr.operator, left, right);
                 return (double) left - (double) right;
             case PLUS:
@@ -82,12 +81,13 @@ class Interpreter implements Expr.Visitor<Object>,
 
     @Override
     public Object visitLiteralExpr(Literal expr) {
+        // System.out.println(expr.value.getClass().getName());
         return expr.value;
     }
 
     @Override
     public Object visitUnaryExpr(Unary expr) {
-        Object right = expr.right;
+        Object right = expr.right.accept(this);
 
         switch (expr.operator.type) {
             case MINUS:
@@ -114,8 +114,6 @@ class Interpreter implements Expr.Visitor<Object>,
             return;
         if (left instanceof Integer && right instanceof Integer)
             return;
-        System.out.println("Checking: " + left.getClass().getName() + "|" +
-        right.getClass().getName());
         throw new RuntimeError(operator, "Operand must be numbers.");
     }
 

@@ -110,7 +110,7 @@ public class Parser {
         if (match(NULL))
             new Expr.Literal(null);
 
-        if (match(FLOAT, STRING)) {
+        if (match(FLOAT, INT, STRING)) {
             return new Expr.Literal(previous().literal);
         }
         if (match(LEFT_PAREN)) {
