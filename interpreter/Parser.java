@@ -4,7 +4,6 @@ import static interpreter.TokenType.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.zip.CheckedInputStream;
 
 public class Parser {
     private static class ParseError extends RuntimeException {
@@ -20,32 +19,62 @@ public class Parser {
     List<Stmt> parse() {
         List<Stmt> statements = new ArrayList<>();
         while (!isAtEnd()) {
-            statements.add(statement());
-            //statements.add(declaration());
+            //statements.add(statement());
+            statements.add(declaration());
         }
 
         return statements;
     }
 
     private Expr expression() {
-        return equality();
+        //return equality();
+        return assignment();
     }
 
-    // private Stmt declaration() {
-    //     try {
-    //         if(match(INT)) return varDeclaration();
+    private Expr assignment() {
+        Expr expr = equality();
 
-    //         return statement();
-    //     } catch(ParseError error) {
-    //         synchronize();
-    //         return null;
-    //     }
-    // }
+        if(match(ASSIGN)) {
+            Token assign = previous();
+            Expr value = assignment();
+
+            if(expr instanceof Expr.Variable) {
+                Token name = ((Expr.Variable)expr).name;
+                return new Expr.Assign(name, value);
+            }
+
+            error(assign, "Invalid assignment target.");
+        }
+        return expr;
+    }
+
+    private Stmt declaration() {
+        try {
+            if(match(INT)) return varDeclaration("INT");
+            if(match(FLOAT)) return varDeclaration("FLOAT");
+            if(match(CHAR)) return varDeclaration("CHAR");
+            if(match(STRING)) return varDeclaration("STRING");
+            if(match(BOOL)) return varDeclaration("BOOL");
+
+            return statement();
+        } catch(ParseError error) {
+            synchronize();
+            return null;
+        }
+    }
 
     private Stmt statement() {
         if (match(DISPLAY) && match(COLON)) return displayStatement();
-    
+        if (match(BEGIN) && match(CODE)) return new Stmt.Block(block());
+        if (match(SCAN) && match(COLON)) return scanStatement();
+
         return expressionStatement();
+      }
+
+      private Stmt scanStatement() {
+        Token variable = consume(IDENTIFIER, "Expect variable name after SCAN:");
+
+        return new Stmt.Scan(variable, null);
       }
 
       private Stmt displayStatement() {
@@ -53,10 +82,49 @@ public class Parser {
         return new Stmt.Display(value);
       }
 
+      private Stmt varDeclaration(String type) {
+        Token name = consume(IDENTIFIER, "Expect variable name.");
+
+        Expr initializer = null;
+        if(match(ASSIGN)) {
+            initializer = expression();
+        }
+
+        if(type.equals("FLOAT")) {
+            return new Stmt.Float(name, initializer);
+        }
+        if(type.equals("INT")) {
+            return new Stmt.Int(name, initializer);
+        }
+        if(type.equals("STRING")) {
+            return new Stmt.String(name, initializer);
+        }
+        if(type.equals("CHAR")) {
+            return new Stmt.Char(name, initializer);
+        }
+        if(type.equals("BOOL")) {
+            return new Stmt.Char(name, initializer);
+        }
+
+        return null;
+      }
+
       private Stmt expressionStatement() {
         Expr expr = expression();
         return new Stmt.Expression(expr);
       }
+
+    private List<Stmt> block() {
+        List<Stmt> statements = new ArrayList<>();
+
+        while(!check(END) && !checkNext(CODE) && !isAtEnd()) {
+            statements.add(declaration());
+        }
+
+        consume(END, "Expect END after block.");
+        consume(CODE, "Expect CODE after END.");
+        return statements;
+    }
 
     private Expr equality() {
         Expr expr = comparison();
@@ -102,6 +170,7 @@ public class Parser {
             Expr right = unary();
             expr = new Expr.Binary(expr, operator, right);
         }
+
         return expr;
     }
 
@@ -127,7 +196,7 @@ public class Parser {
 //            return new Expr.Literal(previous().getLiteral());
 //        }
 
-        if (match(TYPEFLOAT, TYPEINT, TYPESTRING, TYPECHAR)) {
+        if (match(TYPEFLOAT, TYPEINT, TYPESTRING, TYPECHAR, ESCAPECHAR)) {
             Token objectToken = previous();
             if (check(NEW_LINE) && !isAtEnd()) {
                 advance();
@@ -145,6 +214,11 @@ public class Parser {
 
         if(previous().type.equals(NEW_LINE)){
             return new Expr.Literal("");
+        }
+
+
+        if (match(IDENTIFIER)) {
+            return new Expr.Variable(previous());
         }
 
         if (match(LEFT_PAREN)) {
@@ -179,6 +253,12 @@ public class Parser {
         return peek().type == type;
     }
 
+    private boolean checkNext(TokenType type) {
+        if (isAtEnd())
+            return false;
+        return peekNext().type == type;
+    }
+
     private Token advance() {
         if (!isAtEnd())
             current++;
@@ -191,6 +271,10 @@ public class Parser {
 
     private Token peek() {
         return tokens.get(current);
+    }
+
+    private Token peekNext() {
+        return tokens.get(current + 1);
     }
 
     private Token previous() {

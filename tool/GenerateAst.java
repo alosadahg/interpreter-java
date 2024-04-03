@@ -15,15 +15,23 @@ public class GenerateAst {
         String outputDir = args[0];
 
         defineAst(outputDir, "Expr", Arrays.asList(
+            "Assign: Token name, Expr value",
                 "Binary: Expr left, Token operator, Expr right",
                 "Grouping: Expr expression",
                 "Literal: Object value",
-                "newline: Expr left, Token Operator",
-                "Unary: Token operator, Expr right"));
+                "Unary: Token operator, Expr right",
+                "Variable: Token name"));
 
         defineAst(outputDir, "Stmt", Arrays.asList(
+                "Block: List<Stmt> statements",
                 "Expression: Expr expression",
-                "Display: Expr expression"));
+                "Display: Expr expression",
+                "Scan: Token name, Expr initializer",
+                "Int: Token name, Expr intializer",
+                "Float: Token name, Expr initializer",
+                "Char: Token name, Expr initializer",
+                "String: Token name, Expr initializer",
+                "Bool: Token name, Expr initializer"));
     }
 
     private static void defineAst(String outputDir, String baseName, List<String> types) throws IOException {
