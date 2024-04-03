@@ -5,9 +5,11 @@ SCAN: string
 INT int = 5
 int = 8
 FLOAT float = 6.7
+float = int + float
 BOOL bool = "TRUE"
+# comments
 DISPLAY: "char: " & char & " " & [#] & " string: " & string & " " &  [[] & "int: " & int & []] & " float: " 
-& float & " " & [$] & "bool: " & bool  
+& float & " " & [$] &" bool: " & bool  
 END CODE
 
 BEGIN CODE
