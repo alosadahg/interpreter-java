@@ -50,19 +50,19 @@ public class Code{
 
         //printing the tokens
         // for(Token token: tokens) {
-        //     System.out.println(token.type);
+        //     System.out.println(token);
         // }
 
         Parser parser = new Parser(tokens);
-        Expr expression = parser.parse();
+        List<Stmt> statements = parser.parse();
 
         if(hadError) return;
 
         //System.out.println(expression);
 
-        System.out.println(new AstPrinter().print(expression));
+        //System.out.println(new AstPrinter().print(expression));
 
-        interpreter.interpret(expression);
+        interpreter.interpret(statements);
     }
 
     static void error(int line, String message) {

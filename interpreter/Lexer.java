@@ -30,8 +30,8 @@ public class Lexer {
         keywords.put("CHAR", CHAR);
         keywords.put("BOOL", BOOL);
         keywords.put("INT", INT);
-        keywords.put("DISPLAY:", DISPLAY);
-        keywords.put("SCAN:", SCAN);
+        keywords.put("DISPLAY", DISPLAY);
+        keywords.put("SCAN", SCAN);
         keywords.put("NULL", NULL);
     }
 
@@ -156,10 +156,10 @@ public class Lexer {
             advance();
 
             while(isDigit(peek())) advance();
+            //addToken(FLOAT, Double.parseDouble(source.substring(start, current)));
+        } //else {
             addToken(FLOAT, Double.parseDouble(source.substring(start, current)));
-        } else {
-            addToken(INT, Integer.parseInt(source.substring(start, current)));
-        }
+        //}
     }
 
     private char peekNext() {

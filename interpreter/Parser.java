@@ -2,34 +2,53 @@ package interpreter;
 
 import static interpreter.TokenType.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Parser {
-    private static class ParseError extends RuntimeException {}
+    private static class ParseError extends RuntimeException {
+    }
+
     private final List<Token> tokens;
     private int current = 0;
-    
+
     public Parser(List<Token> tokens) {
         this.tokens = tokens;
     }
 
-    Expr parse() {
-        try {
-            // System.out.println("expression: " + expression());
-            return expression();
-        } catch(ParseError error) {
-            return null;
+    List<Stmt> parse() {
+        List<Stmt> statements = new ArrayList<>();
+        while (!isAtEnd()) {
+            statements.add(statement());
         }
+
+        return statements;
     }
 
     private Expr expression() {
         return equality();
     }
 
+    private Stmt statement() {
+        if (match(DISPLAY) && match(COLON)) return displayStatement();
+    
+        return expressionStatement();
+      }
+
+      private Stmt displayStatement() {
+        Expr value = expression();
+        return new Stmt.Display(value);
+      }
+
+      private Stmt expressionStatement() {
+        Expr expr = expression();
+        return new Stmt.Expression(expr);
+      }
+
     private Expr equality() {
         Expr expr = comparison();
 
-        while(match(NOT_EQUAL, EQUAL_EVAL)) {
+        while (match(NOT_EQUAL, EQUAL_EVAL)) {
             Token operator = previous();
             Expr right = comparison();
             expr = new Expr.Binary(expr, operator, right);
@@ -37,7 +56,6 @@ public class Parser {
 
         return expr;
     }
-
 
     private Expr comparison() {
         Expr expr = term();
@@ -54,7 +72,7 @@ public class Parser {
     private Expr term() {
         Expr expr = factor();
 
-        while(match(MINUS, PLUS)) {
+        while (match(MINUS, PLUS)) {
             Token operator = previous();
             Expr right = factor();
             expr = new Expr.Binary(expr, operator, right);
@@ -65,8 +83,8 @@ public class Parser {
 
     private Expr factor() {
         Expr expr = unary();
-        
-        while(match(STAR, SLASH, MODULO)) {
+
+        while (match(STAR, SLASH, MODULO)) {
             Token operator = previous();
             Expr right = unary();
             expr = new Expr.Binary(expr, operator, right);
@@ -75,7 +93,7 @@ public class Parser {
     }
 
     private Expr unary() {
-        if(match(NOT, MINUS, PLUS)) {
+        if (match(NOT, MINUS, PLUS)) {
             Token operator = previous();
             Expr right = unary();
             return new Expr.Unary(operator, right);
@@ -85,32 +103,35 @@ public class Parser {
     }
 
     private Expr primary() {
-        if(match(FALSE)) return new Expr.Literal("FALSE");
-        if(match(TRUE)) return new Expr.Literal("TRUE");
-        if(match(NULL)) new Expr.Literal(null);
-        
-        if(match(INT, FLOAT, STRING)) {
-            System.out.println(previous());
-            return new Expr.Literal(previous().lexeme);
+        if (match(FALSE))
+            return new Expr.Literal("FALSE");
+        if (match(TRUE))
+            return new Expr.Literal("TRUE");
+        if (match(NULL))
+            new Expr.Literal(null);
+
+        if (match(FLOAT, STRING)) {
+            return new Expr.Literal(previous().literal);
         }
-        if(match(LEFT_PAREN)) {
+        if (match(LEFT_PAREN)) {
             Expr expr = expression();
             consume(RIGHT_PAREN, "Expect ')' after the expression.");
             return new Expr.Grouping(expr);
         }
 
-        throw error(peek(),"Expect expression.");
+        throw error(peek(), "Expect expression.");
     }
 
     private Token consume(TokenType type, String message) {
-        if(check(type)) return advance();
+        if (check(type))
+            return advance();
 
         throw error(peek(), message);
     }
 
-    private boolean match(TokenType...types) {
+    private boolean match(TokenType... types) {
         for (TokenType type : types) {
-            if(check(type)) {
+            if (check(type)) {
                 advance();
                 return true;
             }
@@ -119,12 +140,14 @@ public class Parser {
     }
 
     private boolean check(TokenType type) {
-        if(isAtEnd()) return false;
+        if (isAtEnd())
+            return false;
         return peek().type == type;
     }
 
     private Token advance() {
-        if(!isAtEnd()) current++;
+        if (!isAtEnd())
+            current++;
         return previous();
     }
 
@@ -137,7 +160,7 @@ public class Parser {
     }
 
     private Token previous() {
-        return tokens.get(current-1);
+        return tokens.get(current - 1);
     }
 
     private ParseError error(Token token, String message) {
@@ -148,10 +171,11 @@ public class Parser {
     private void synchronize() {
         advance();
 
-        while(!isAtEnd()) {
-            if(previous().type == CODE) return;
+        while (!isAtEnd()) {
+            if (previous().type == CODE)
+                return;
 
-            switch(peek().type) {
+            switch (peek().type) {
                 case INT:
                 case CHAR:
                 case BOOL:

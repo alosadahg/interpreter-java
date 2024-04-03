@@ -1,1 +1,4 @@
-7
+BEGIN CODE
+    int var = 3
+    DISPLAY: var
+END CODE

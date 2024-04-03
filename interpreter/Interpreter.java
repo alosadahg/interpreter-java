@@ -1,13 +1,17 @@
 package interpreter;
 
+import java.util.List;
+
 import javax.management.RuntimeErrorException;
 
 import interpreter.Expr.Binary;
 import interpreter.Expr.Grouping;
 import interpreter.Expr.Literal;
 import interpreter.Expr.Unary;
+import interpreter.Stmt.Display;
 
-public class Interpreter implements Expr.Visitor<Object> {
+class Interpreter implements Expr.Visitor<Object>,
+        Stmt.Visitor<Void> {
 
     @Override
     public Object visitBinaryExpr(Binary expr) {
@@ -15,7 +19,7 @@ public class Interpreter implements Expr.Visitor<Object> {
         Object right = expr.right;
         switch (expr.operator.type) {
             case MINUS:
-            System.out.println("left: " + left + " | right: " + right.toString());
+                // System.out.println("left: " + left + " | right: " + right.toString());
                 checkNumberOperands(expr.operator, left, right);
                 return (double) left - (double) right;
             case PLUS:
@@ -59,6 +63,23 @@ public class Interpreter implements Expr.Visitor<Object> {
         return expr.accept(this);
     }
 
+    private void execute(Stmt stmt) {
+        stmt.accept(this);
+    }
+
+    @Override
+    public Void visitExpressionStmt(Stmt.Expression stmt) {
+        evaluate(stmt.expression);
+        return null;
+    }
+
+    @Override
+    public Void visitDisplayStmt(Display stmt) {
+        Object value = evaluate(stmt.expression);
+        System.out.println(stringify(value));
+        return null;
+    }
+
     @Override
     public Object visitLiteralExpr(Literal expr) {
         return expr.value;
@@ -85,14 +106,16 @@ public class Interpreter implements Expr.Visitor<Object> {
     private void checkNumberOperand(Token operator, Object operand) {
         if (operand instanceof Double || operand instanceof Integer)
             return;
-            System.out.println("Checking: " + operand.getClass().getName());
         throw new RuntimeError(operator, "Operand must be a number.");
     }
 
     private void checkNumberOperands(Token operator, Object left, Object right) {
-        if (left instanceof Double && right instanceof Double) return;
-        if (left instanceof Integer && right instanceof Integer) return;
-        System.out.println("Checking: " + left.getClass().getName() + "|" + right.getClass().getName());
+        if (left instanceof Double && right instanceof Double)
+            return;
+        if (left instanceof Integer && right instanceof Integer)
+            return;
+        System.out.println("Checking: " + left.getClass().getName() + "|" +
+        right.getClass().getName());
         throw new RuntimeError(operator, "Operand must be numbers.");
     }
 
@@ -114,11 +137,12 @@ public class Interpreter implements Expr.Visitor<Object> {
     }
 
     private String stringify(Object object) {
-        if(object == null) return "null";
+        if (object == null)
+            return "null";
 
-        if(object instanceof Double) {
+        if (object instanceof Double) {
             String text = object.toString();
-            if(text.endsWith(".0")) {
+            if (text.endsWith(".0")) {
                 text = text.substring(0, text.length() - 2);
             }
             return text;
@@ -127,10 +151,11 @@ public class Interpreter implements Expr.Visitor<Object> {
         return object.toString();
     }
 
-    void interpret(Expr expression) {
+    void interpret(List<Stmt> statements) {
         try {
-            Object value = evaluate(expression);
-            System.out.println(stringify(value));
+            for (Stmt statement : statements) {
+                execute(statement);
+            }
         } catch (RuntimeError error) {
             Code.runtimeError(error);
         }
