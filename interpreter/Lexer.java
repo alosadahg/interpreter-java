@@ -93,7 +93,6 @@ public class Lexer {
                 break;
             case '$':
                 addToken(NEW_LINE);
-                line++;
                 break;
             case '%':
                 addToken(MODULO);

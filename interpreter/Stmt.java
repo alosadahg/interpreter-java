@@ -4,6 +4,7 @@ import java.util.List;
 
 abstract class Stmt {
     interface Visitor<R> {
+      R visitBlockStmt(Block stmt);
       R visitExpressionStmt(Expression stmt);
       R visitDisplayStmt(Display stmt);
       R visitIntStmt(Int stmt);
@@ -11,6 +12,18 @@ abstract class Stmt {
       R visitCharStmt(Char stmt);
       R visitStringStmt(String stmt);
       R visitBoolStmt(Bool stmt);
+    }
+    static class Block extends Stmt {
+        Block(List<Stmt> statements) {
+            this.statements = statements;
+        }
+
+        @Override
+        <R> R accept(Visitor<R> visitor) {
+        return visitor.visitBlockStmt(this);
+        }
+
+        final List<Stmt> statements;
     }
     static class Expression extends Stmt {
         Expression(Expr expression) {

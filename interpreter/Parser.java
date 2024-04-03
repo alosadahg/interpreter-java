@@ -27,7 +27,25 @@ public class Parser {
     }
 
     private Expr expression() {
-        return equality();
+        //return equality();
+        return assignment();
+    }
+
+    private Expr assignment() {
+        Expr expr = equality();
+
+        if(match(ASSIGN)) {
+            Token assign = previous();
+            Expr value = assignment();
+
+            if(expr instanceof Expr.Variable) {
+                Token name = ((Expr.Variable)expr).name;
+                return new Expr.Assign(name, value);
+            }
+
+            error(assign, "Invalid assignment target.");
+        }
+        return expr;
     }
 
     private Stmt declaration() {
@@ -47,6 +65,7 @@ public class Parser {
 
     private Stmt statement() {
         if (match(DISPLAY) && match(COLON)) return displayStatement();
+        if (match(BEGIN) && match(CODE)) return new Stmt.Block(block());
     
         return expressionStatement();
       }
@@ -87,6 +106,18 @@ public class Parser {
         Expr expr = expression();
         return new Stmt.Expression(expr);
       }
+
+    private List<Stmt> block() {
+        List<Stmt> statements = new ArrayList<>();
+
+        while(!check(END) && !checkNext(CODE) && !isAtEnd()) {
+            statements.add(declaration());
+        }
+
+        consume(END, "Expect END after block.");
+        consume(CODE, "Expect CODE after END.");
+        return statements;
+    }
 
     private Expr equality() {
         Expr expr = comparison();
@@ -193,6 +224,12 @@ public class Parser {
         return peek().type == type;
     }
 
+    private boolean checkNext(TokenType type) {
+        if (isAtEnd())
+            return false;
+        return peekNext().type == type;
+    }
+
     private Token advance() {
         if (!isAtEnd())
             current++;
@@ -205,6 +242,10 @@ public class Parser {
 
     private Token peek() {
         return tokens.get(current);
+    }
+
+    private Token peekNext() {
+        return tokens.get(current + 1);
     }
 
     private Token previous() {
