@@ -273,48 +273,37 @@ class Interpreter implements Expr.Visitor<Object>,
         return null;
     }
 
-    private Object scanInput(String variableName) throws IOException {
+    private Object scanInput() throws IOException {
         InputStreamReader input = new InputStreamReader(System.in);
         BufferedReader reader = new BufferedReader(input);
         String line = reader.readLine().trim();
 
-        String tokenType = environment.getTokenFromName(variableName); // Get the token type for the variable
+        try {
+            Integer intValue = Integer.parseInt(line);
+            System.out.println("scanInput : " + intValue);
+            return intValue;
+        } catch (NumberFormatException ignored) {
+        }
 
         try {
-            if (tokenType.equals("Integer")) {
-                return Integer.parseInt(line);
-            } else if (tokenType.equals("Float")) {
-                return Double.parseDouble(line);
-            } else if (tokenType.equals("Boolean")) {
-                if (line.equalsIgnoreCase("true") || line.equalsIgnoreCase("false")) {
-                    return Boolean.parseBoolean(line);
-                } else {
-                    // Ignore error and return null
-                    return null;
-                }
-            } else if (tokenType.equals("Character")) {
-                if (line.length() == 1) {
-                    return line.charAt(0);
-                } else {
-                    // Ignore error and return null
-                    return null;
-                }
-            } else if (tokenType.equals("String")) {
-                return line;
-            } else {
-                // Ignore error and return null
-                return null;
-            }
-        } catch (NumberFormatException e) {
-            // Ignore error and return null
-            return null;
+            Double doubleValue = Double.parseDouble(line);
+            System.out.println("scanInput : " + doubleValue);
+            return doubleValue;
+        } catch (NumberFormatException ignored) {
         }
+
+        if (line.length() == 1) {
+            char charValue = line.charAt(0);
+            return charValue;
+        }
+
+        return line;
     }
 
     @Override
     public Void visitScanStmt(Scan stmt) {
         try {
-            Object scannedValue = scanInput(stmt.name.lexeme);
+            Object scannedValue = scanInput();
             String tokenType = environment.getTokenFromName(stmt.name.lexeme);
 
             // Check if tokenType == scannedValue Type
