@@ -50,7 +50,9 @@ class Interpreter implements Expr.Visitor<Object>,
             value = evaluate(stmt.initializer);
         }
 
-        environment.define(stmt.name.lexeme, value);
+        String Tokentype = "Boolean";
+
+        environment.define(stmt.name.lexeme, value, Tokentype);
         // System.out.println("var = " + stmt.initializer.accept(this));
         return null;
     }
@@ -60,9 +62,13 @@ class Interpreter implements Expr.Visitor<Object>,
         Object value = null;
         if (stmt.initializer != null) {
             value = evaluate(stmt.initializer);
+            if (!(value instanceof Character)) {
+                throw new RuntimeError(stmt.name, "Input must be a character");
+            }
         }
+        String Tokentype = "Character";
 
-        environment.define(stmt.name.lexeme, value);
+        environment.define(stmt.name.lexeme, value, Tokentype);
         // System.out.println("var = " + stmt.initializer.accept(this));
         return null;
     }
@@ -72,9 +78,14 @@ class Interpreter implements Expr.Visitor<Object>,
         Object value = null;
         if (stmt.initializer != null) {
             value = evaluate(stmt.initializer);
+            if (!(value instanceof Double)) {
+                throw new RuntimeError(stmt.name, "Input must be a float");
+            }
         }
 
-        environment.define(stmt.name.lexeme, value);
+        String Tokentype = "Float";
+
+        environment.define(stmt.name.lexeme, value, Tokentype);
         // System.out.println("var = " + stmt.initializer.accept(this));
         return null;
     }
@@ -84,9 +95,14 @@ class Interpreter implements Expr.Visitor<Object>,
         Object value = null;
         if (stmt.intializer != null) {
             value = evaluate(stmt.intializer);
+            if (!(value instanceof Integer)) {
+                throw new RuntimeError(stmt.name, "Input must be an Integer");
+            }
         }
 
-        environment.define(stmt.name.lexeme, value);
+        String Tokentype = "Integer";
+
+        environment.define(stmt.name.lexeme, value, Tokentype);
         // System.out.println("var = " + stmt.initializer.accept(this));
         return null;
     }
@@ -96,9 +112,14 @@ class Interpreter implements Expr.Visitor<Object>,
         Object value = null;
         if (stmt.initializer != null) {
             value = evaluate(stmt.initializer);
+            if (!(value instanceof String)) {
+                throw new RuntimeError(stmt.name, "Input must be a String");
+            }
         }
 
-        environment.define(stmt.name.lexeme, value);
+        String Tokentype = "String";
+
+        environment.define(stmt.name.lexeme, value, Tokentype);
         // System.out.println("var = " + stmt.initializer.accept(this));
         return null;
     }
@@ -124,7 +145,7 @@ class Interpreter implements Expr.Visitor<Object>,
         try {
             this.environment = environment;
 
-            for(Stmt statement: statements) {
+            for (Stmt statement : statements) {
                 execute(statement);
             }
         } finally {
@@ -134,7 +155,7 @@ class Interpreter implements Expr.Visitor<Object>,
 
     @Override
     public Object visitAssignExpr(Assign expr) {
-        Object value= evaluate(expr.value);
+        Object value = evaluate(expr.value);
         environment.assign(expr.name, value);
         return value;
     }
@@ -252,29 +273,75 @@ class Interpreter implements Expr.Visitor<Object>,
         return null;
     }
 
-    private Object scanInput() throws IOException {
-    InputStreamReader input = new InputStreamReader(System.in);
-    BufferedReader reader = new BufferedReader(input);
-    String line = reader.readLine();
-    return line;
-}
+    private Object scanInput(String variableName) throws IOException {
+        InputStreamReader input = new InputStreamReader(System.in);
+        BufferedReader reader = new BufferedReader(input);
+        String line = reader.readLine().trim();
 
-@Override
-public Void visitScanStmt(Scan stmt) {
-    try {
-        Object scannedValue = scanInput();
-        environment.assign(stmt.name, scannedValue);
-    } catch (IOException e) {
-        e.printStackTrace();
+        String tokenType = environment.getTokenFromName(variableName); // Get the token type for the variable
+
+        try {
+            if (tokenType.equals("Integer")) {
+                return Integer.parseInt(line);
+            } else if (tokenType.equals("Float")) {
+                return Double.parseDouble(line);
+            } else if (tokenType.equals("Boolean")) {
+                if (line.equalsIgnoreCase("true") || line.equalsIgnoreCase("false")) {
+                    return Boolean.parseBoolean(line);
+                } else {
+                    // Ignore error and return null
+                    return null;
+                }
+            } else if (tokenType.equals("Character")) {
+                if (line.length() == 1) {
+                    return line.charAt(0);
+                } else {
+                    // Ignore error and return null
+                    return null;
+                }
+            } else if (tokenType.equals("String")) {
+                return line;
+            } else {
+                // Ignore error and return null
+                return null;
+            }
+        } catch (NumberFormatException e) {
+            // Ignore error and return null
+            return null;
+        }
     }
-    return null;
-}
 
+    @Override
+    public Void visitScanStmt(Scan stmt) {
+        try {
+            Object scannedValue = scanInput(stmt.name.lexeme);
+            String tokenType = environment.getTokenFromName(stmt.name.lexeme);
+
+            // Check if tokenType == scannedValue Type
+            // NOTE: Debug this please the token type recognized for boolean is character
+            // Check the hashMap under Environment to debug
+            // Problem: the saved token type in the hashmap for type BOOL is character
+            if (tokenType.equals("Boolean") & (scannedValue.equals("TRUE") || scannedValue.equals("FALSE"))) {
+                environment.assign(stmt.name, scannedValue);
+                return null;
+            }
+
+            if (tokenType.equals(scannedValue.getClass().getSimpleName())) {
+                environment.assign(stmt.name, scannedValue);
+                return null;
+            }
+
+            throw new RuntimeError(stmt.name, "Input must be " + tokenType);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     @Override
     public Object visitLiteralExpr(Literal expr) {
         // System.out.println(expr.value.getClass().getName());
-        if(expr.value.equals("\n")) {
+        if (expr.value.equals("\n")) {
             System.out.println();
         }
         return expr.value;
@@ -335,11 +402,11 @@ public Void visitScanStmt(Scan stmt) {
         if (object == null)
             return "null";
 
-        if(object.toString().equals("new_line")) {
+        if (object.toString().equals("new_line")) {
             System.out.println();
         }
 
-        if(object instanceof Boolean) {
+        if (object instanceof Boolean) {
             return object.toString().toUpperCase();
         }
 

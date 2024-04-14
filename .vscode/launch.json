@@ -1,0 +1,12 @@
+{
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Code",
+      "request": "launch",
+      "mainClass": "interpreter.Code",
+      "projectName": "interpreter-java_ddc55dd2"
+    },
+    {}
+  ]
+}
