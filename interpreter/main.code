@@ -1,24 +1,7 @@
-BEGIN CODE
-CHAR char = 'e'
-STRING string
-SCAN: string
-INT int = 5
-int = 8
-FLOAT float = 6.7
-float = int + float
-BOOL bool = "TRUE"
-# comments
-DISPLAY: "char: " & char & " " & [#] & " string: " & string & " " &  [[] & "int: " & int & []] & " float: " 
-& float & " " & [$] &" bool: " & bool  
-END CODE
 
 BEGIN CODE
-CHAR char = 'c'
-STRING string = "Hell0 world!"
-INT int
-SCAN: int
-FLOAT float = 7.8
-BOOL bool = "FALSE"
-DISPLAY: "char: " & char & " | " & "string: " & string &  " | " & "int: " & int & " | " & "float: " 
-& float & " | " & "bool: " & bool  
+INT sum = 0
+FLOAT ave
+INT hermi
+sum = sum + 5
 END CODE

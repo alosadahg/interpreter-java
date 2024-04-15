@@ -11,6 +11,8 @@ public class Parser {
 
     private final List<Token> tokens;
     private int current = 0;
+    private Boolean variableDeclarationStarted = false;
+    private Boolean executableStarted = false;
 
     public Parser(List<Token> tokens) {
         this.tokens = tokens;
@@ -34,12 +36,12 @@ public class Parser {
     private Expr assignment() {
         Expr expr = equality();
 
-        if(match(ASSIGN)) {
+        if (match(ASSIGN)) {
             Token assign = previous();
             Expr value = assignment();
 
-            if(expr instanceof Expr.Variable) {
-                Token name = ((Expr.Variable)expr).name;
+            if (expr instanceof Expr.Variable) {
+                Token name = ((Expr.Variable) expr).name;
                 return new Expr.Assign(name, value);
             }
 
@@ -50,14 +52,14 @@ public class Parser {
 
     private Stmt declaration() {
         try {
-            if(match(INT)) return varDeclaration("INT");
-            if(match(FLOAT)) return varDeclaration("FLOAT");
-            if(match(CHAR)) return varDeclaration("CHAR");
-            if(match(STRING)) return varDeclaration("STRING");
-            if(match(BOOL)) return varDeclaration("BOOL");
+            if (match(INT)) return varDeclaration("INT");
+            if (match(FLOAT)) return varDeclaration("FLOAT");
+            if (match(CHAR)) return varDeclaration("CHAR");
+            if (match(STRING)) return varDeclaration("STRING");
+            if (match(BOOL)) return varDeclaration("BOOL");
 
             return statement();
-        } catch(ParseError error) {
+        } catch (ParseError error) {
             synchronize();
             return null;
         }
@@ -65,59 +67,72 @@ public class Parser {
 
     private Stmt statement() {
         if (match(DISPLAY) && match(COLON)) return displayStatement();
-        if (match(BEGIN) && match(CODE)) return new Stmt.Block(block());
+        if (match(BEGIN) && match(CODE)) {
+            return new Stmt.Block(block());
+        }
         if (match(SCAN) && match(COLON)) return scanStatement();
 
         return expressionStatement();
-      }
+    }
 
-      private Stmt scanStatement() {
+    private Stmt scanStatement() {
         Token variable = consume(IDENTIFIER, "Expect variable name after SCAN:");
 
         return new Stmt.Scan(variable, null);
-      }
+    }
 
-      private Stmt displayStatement() {
+    private Stmt displayStatement() {
         Expr value = expression();
         return new Stmt.Display(value);
-      }
+    }
 
-      private Stmt varDeclaration(String type) {
+    private Stmt varDeclaration(String type) {
         Token name = consume(IDENTIFIER, "Expect variable name.");
-
+    
+        // Throw error if variable declaration is attempted after executable code has started
+        if (executableStarted) {
+            error(name, "Cannot declare variable after executable code");
+        }
+    
         Expr initializer = null;
-        if(match(ASSIGN)) {
+        if (match(ASSIGN)) {
             initializer = expression();
         }
-
-        if(type.equals("FLOAT")) {
+    
+        if (type.equals("FLOAT")) {
+            variableDeclarationStarted = true;
             return new Stmt.Float(name, initializer);
         }
-        if(type.equals("INT")) {
+        if (type.equals("INT")) {
+            variableDeclarationStarted = true;
             return new Stmt.Int(name, initializer);
         }
-        if(type.equals("STRING")) {
+        if (type.equals("STRING")) {
+            variableDeclarationStarted = true;
             return new Stmt.String(name, initializer);
         }
-        if(type.equals("CHAR")) {
+        if (type.equals("CHAR")) {
+            variableDeclarationStarted = true;
             return new Stmt.Char(name, initializer);
         }
-        if(type.equals("BOOL")) {
+        if (type.equals("BOOL")) {
+            variableDeclarationStarted = true;
             return new Stmt.Char(name, initializer);
         }
-
+    
         return null;
-      }
+    }
+    
 
-      private Stmt expressionStatement() {
+    private Stmt expressionStatement() {
         Expr expr = expression();
         return new Stmt.Expression(expr);
-      }
+    }
 
     private List<Stmt> block() {
         List<Stmt> statements = new ArrayList<>();
 
-        while(!check(END) && !checkNext(CODE) && !isAtEnd()) {
+        while (!check(END) && !checkNext(CODE) && !isAtEnd()) {
             statements.add(declaration());
         }
 
@@ -132,6 +147,7 @@ public class Parser {
         while (match(NOT_EQUAL, EQUAL_EVAL)) {
             Token operator = previous();
             Expr right = comparison();
+            executableStarted = true;
             expr = new Expr.Binary(expr, operator, right);
         }
 
@@ -144,6 +160,7 @@ public class Parser {
         while (match(GREATER_THAN, GREATER_OR_EQUAL, LESS_THAN, LESS_OR_EQUAL)) {
             Token operator = previous();
             Expr right = term();
+            executableStarted = true;
             expr = new Expr.Binary(expr, operator, right);
         }
 
@@ -156,6 +173,7 @@ public class Parser {
         while (match(MINUS, PLUS, CONCAT, NEW_LINE)) {
             Token operator = previous();
             Expr right = unary();
+            executableStarted = true;
             expr = new Expr.Binary(expr, operator, right);
         }
 
@@ -168,6 +186,7 @@ public class Parser {
         while (match(STAR, SLASH, MODULO, NEW_LINE)) {
             Token operator = previous();
             Expr right = unary();
+            executableStarted = true;
             expr = new Expr.Binary(expr, operator, right);
         }
 
@@ -192,10 +211,6 @@ public class Parser {
         if (match(NULL))
             new Expr.Literal(null);
 
-//        if (match(TYPEFLOAT, TYPEINT, TYPESTRING, TYPECHAR)) {
-//            return new Expr.Literal(previous().getLiteral());
-//        }
-
         if (match(TYPEFLOAT, TYPEINT, TYPESTRING, TYPECHAR, ESCAPECHAR)) {
             Token objectToken = previous();
             if (check(NEW_LINE) && !isAtEnd()) {
@@ -212,10 +227,9 @@ public class Parser {
             }
         }
 
-        if(previous().type.equals(NEW_LINE)){
+        if (previous().type.equals(NEW_LINE)) {
             return new Expr.Literal("");
         }
-
 
         if (match(IDENTIFIER)) {
             return new Expr.Variable(previous());
