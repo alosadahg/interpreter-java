@@ -5,6 +5,13 @@
       "name": "Code",
       "request": "launch",
       "mainClass": "interpreter.Code",
+      "projectName": "interpreter-java_f3a723d5"
+    },
+    {
+      "type": "java",
+      "name": "Code",
+      "request": "launch",
+      "mainClass": "interpreter.Code",
       "projectName": "interpreter-java_900339e4"
     },
     {

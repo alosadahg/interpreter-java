@@ -40,7 +40,12 @@ class Interpreter implements Expr.Visitor<Object>,
 
     @Override
     public Object visitVariableExpr(Variable expr) {
-        return environment.get(expr.name);
+        // return environment.get(expr.name);
+        Object value = environment.get(expr.name);
+        if (value == null) {
+            throw new RuntimeError(expr.name, "Undefined variable '" + expr.name.lexeme + "'.");
+        }
+        return value;
     }
 
     @Override
@@ -103,6 +108,7 @@ class Interpreter implements Expr.Visitor<Object>,
         String Tokentype = "Integer";
 
         environment.define(stmt.name.lexeme, value, Tokentype);
+        System.out.println("Declared variable: " + stmt.name.lexeme + " = " + value);
         // System.out.println("var = " + stmt.initializer.accept(this));
         return null;
     }
@@ -158,6 +164,24 @@ class Interpreter implements Expr.Visitor<Object>,
         Object value = evaluate(expr.value);
         environment.assign(expr.name, value);
         return value;
+    }
+
+    @Override
+    public Void visitMultiVarStmt(Stmt.MultiVar stmt) {
+        for (int i = 0; i < stmt.names.size(); i++) {
+            Token name = stmt.names.get(i);
+            Expr initializer = stmt.initializers.get(i);
+
+            Object value = null;
+            if (initializer != null) {
+                value = evaluate(initializer);
+            } else {
+                value = null;
+            }
+
+            environment.assign(name, value);
+        }
+        return null;
     }
 
     @Override

@@ -4,12 +4,22 @@ import static interpreter.TokenType.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+
+import interpreter.Stmt.Float;
 
 public class Parser {
     private static class ParseError extends RuntimeException {
     }
 
+    /*
+     * Added symbol table, helps with error printing undefined variable even thought
+     * variable is null, check
+     * varDeclaration for more information about the declaration
+     */
     private final List<Token> tokens;
+    private Map<String, Object> symbolTable = new HashMap<>();
     private int current = 0;
     private Boolean variableDeclarationStarted = false;
     private Boolean executableStarted = false;
@@ -21,15 +31,15 @@ public class Parser {
     List<Stmt> parse() {
         List<Stmt> statements = new ArrayList<>();
         while (!isAtEnd()) {
-            //statements.add(statement());
-            statements.add(declaration());
+            // statements.add(statement());
+            statements.addAll(declaration());
         }
 
         return statements;
     }
 
     private Expr expression() {
-        //return equality();
+        // return equality();
         return assignment();
     }
 
@@ -50,79 +60,183 @@ public class Parser {
         return expr;
     }
 
-    private Stmt declaration() {
-        try {
-            if (match(INT)) return varDeclaration("INT");
-            if (match(FLOAT)) return varDeclaration("FLOAT");
-            if (match(CHAR)) return varDeclaration("CHAR");
-            if (match(STRING)) return varDeclaration("STRING");
-            if (match(BOOL)) return varDeclaration("BOOL");
+    // private Stmt declaration() {
+    // try {
+    // if (match(INT))
+    // return varDeclaration("INT");
+    // if (match(FLOAT))
+    // return varDeclaration("FLOAT");
+    // if (match(CHAR))
+    // return varDeclaration("CHAR");
+    // if (match(STRING))
+    // return varDeclaration("STRING");
+    // if (match(BOOL))
+    // return varDeclaration("BOOL");
 
-            return statement();
+    // return statement();
+    // } catch (ParseError error) {
+    // synchronize();
+    // return null;
+    // }
+    // }
+
+    private List<Stmt> declaration() {
+        List<Stmt> stmts = new ArrayList<>();
+
+        try {
+            if (match(INT)) {
+                stmts.addAll(varDeclaration("INT"));
+                return stmts;
+            }
+            if (match(FLOAT)) {
+                stmts.addAll(varDeclaration("FLOAT"));
+                return stmts;
+            }
+            if (match(CHAR)) {
+                stmts.addAll(varDeclaration("CHAR"));
+                return stmts;
+            }
+            if (match(STRING)) {
+                stmts.addAll(varDeclaration("STRING"));
+                return stmts;
+            }
+            if (match(BOOL)) {
+                stmts.addAll(varDeclaration("BOOL"));
+                return stmts;
+            }
+
+            stmts.add(statement());
         } catch (ParseError error) {
             synchronize();
-            return null;
         }
+
+        return stmts;
     }
 
     private Stmt statement() {
-        if (match(DISPLAY) && match(COLON)) return displayStatement();
+        if (match(DISPLAY) && match(COLON))
+            return displayStatement();
         if (match(BEGIN) && match(CODE)) {
             return new Stmt.Block(block());
         }
-        if (match(SCAN) && match(COLON)) return scanStatement();
+        if (match(SCAN) && match(COLON))
+            return scanStatement();
 
         return expressionStatement();
     }
 
     private Stmt scanStatement() {
         Token variable = consume(IDENTIFIER, "Expect variable name after SCAN:");
-
         return new Stmt.Scan(variable, null);
     }
 
+    // please help me resolve this error
+    /*> INT a, b=100
+        1:INT
+        Initializer value: null
+        Initializer value: interpreter.Expr$Literal@31befd9f
+        [interpreter.Stmt$Int@1c20c684, interpreter.Stmt$Int@1fb3ebeb]
+        Declared variable: a = null
+        Declared variable: b = 100
+        > DISPLAY: a 
+        interpreter.Expr$Variable@6d311334
+        Undefined variable 'a'.
+        [line 0]
+        > INT a
+        1:INT
+        Initializer value: null
+        [interpreter.Stmt$Int@5f184fc6]
+        Declared variable: a = null
+        > DISPLAY: a
+        interpreter.Expr$Variable@3feba861
+        Undefined variable 'a'.
+        [line 0]
+     */
     private Stmt displayStatement() {
         Expr value = expression();
         return new Stmt.Display(value);
     }
 
-    private Stmt varDeclaration(String type) {
-        Token name = consume(IDENTIFIER, "Expect variable name.");
-    
-        // Throw error if variable declaration is attempted after executable code has started
-        if (executableStarted) {
-            error(name, "Cannot declare variable after executable code");
+    private List<Stmt> varDeclaration(String type) {
+        System.out.println("1:" + type);
+        List<Token> names = new ArrayList<>();
+        List<Expr> initializers = new ArrayList<>();
+
+        TokenType tokenType;
+        switch (type) {
+            case "FLOAT":
+                tokenType = TokenType.FLOAT;
+                break;
+            case "INT":
+                tokenType = TokenType.INT;
+                break;
+            case "STRING":
+                tokenType = TokenType.STRING;
+                break;
+            case "CHAR":
+                tokenType = TokenType.CHAR;
+                break;
+            case "BOOL":
+                tokenType = TokenType.BOOL;
+                break;
+            default:
+                System.out.println("Unidentifiable variable type");
+                return null;
         }
-    
-        Expr initializer = null;
-        if (match(ASSIGN)) {
-            initializer = expression();
+
+        do {
+            Token name = consume(IDENTIFIER, "Expect variable name.");
+
+            Expr initializer = null;
+            if (match(ASSIGN)) {
+                initializer = expression();
+            }
+
+            names.add(name);
+            initializers.add(initializer);
+
+        } while (match(COMMA));
+
+        // System.out.println("3:" + type);
+        List<Stmt> stmts = new ArrayList<>();
+        for (int i = 0; i < names.size(); i++) {
+            Token name = names.get(i);
+            Expr initializer = initializers.get(i);
+
+            // // Add the variable and its initializer to the symbol table
+            // System.out.println("Initializer value: " + initializer);
+            symbolTable.put(name.lexeme, initializer);
+
+            switch (tokenType) {
+                case FLOAT:
+                    variableDeclarationStarted = true;
+                    stmts.add(new Stmt.Float(name, initializer));
+                    break;
+                case INT:
+                    variableDeclarationStarted = true;
+                    stmts.add(new Stmt.Int(name, initializer));
+                    break;
+                case STRING:
+                    variableDeclarationStarted = true;
+                    stmts.add(new Stmt.String(name, initializer));
+                    break;
+                case CHAR:
+                    variableDeclarationStarted = true;
+                    stmts.add(new Stmt.Char(name, initializer));
+                    break;
+                case BOOL:
+                    variableDeclarationStarted = true;
+                    stmts.add(new Stmt.Bool(name, initializer));
+                    break;
+                default:
+                    System.out.println("Na default ka boss");
+                    stmts.add(new Stmt.MultiVar(null, names, initializers));
+                    break;
+            }
         }
-    
-        if (type.equals("FLOAT")) {
-            variableDeclarationStarted = true;
-            return new Stmt.Float(name, initializer);
-        }
-        if (type.equals("INT")) {
-            variableDeclarationStarted = true;
-            return new Stmt.Int(name, initializer);
-        }
-        if (type.equals("STRING")) {
-            variableDeclarationStarted = true;
-            return new Stmt.String(name, initializer);
-        }
-        if (type.equals("CHAR")) {
-            variableDeclarationStarted = true;
-            return new Stmt.Char(name, initializer);
-        }
-        if (type.equals("BOOL")) {
-            variableDeclarationStarted = true;
-            return new Stmt.Char(name, initializer);
-        }
-    
-        return null;
+        System.out.println(stmts);
+        return stmts;
     }
-    
 
     private Stmt expressionStatement() {
         Expr expr = expression();
@@ -133,7 +247,7 @@ public class Parser {
         List<Stmt> statements = new ArrayList<>();
 
         while (!check(END) && !checkNext(CODE) && !isAtEnd()) {
-            statements.add(declaration());
+            statements.addAll(declaration());
         }
 
         consume(END, "Expect END after block.");
@@ -217,7 +331,8 @@ public class Parser {
                 advance();
                 if (!isAtEnd()) {
                     Token nextToken = peek();
-                    return new Expr.Binary(new Expr.Literal(objectToken.getLiteral()), new Token(NEW_LINE, null, "\n", -1), primary());
+                    return new Expr.Binary(new Expr.Literal(objectToken.getLiteral()),
+                            new Token(NEW_LINE, null, "\n", -1), primary());
                 } else {
                     System.out.print(objectToken.getLiteral());
                     return new Expr.Literal(new Token(NEW_LINE, null, null, -1));
