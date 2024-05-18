@@ -14,9 +14,11 @@ public class Parser {
     }
 
     /*
-     * Added symbol table, helps with error printing undefined variable even thought
+     * Added symbol table, helps with error printing undefined variable even though
      * variable is null, check
      * varDeclaration for more information about the declaration
+     * Error again with the symbol table cannot take in the literal value
+     * can't think anymore will come back if error is still not resolved -Idul
      */
     private final List<Token> tokens;
     private Map<String, Object> symbolTable = new HashMap<>();
