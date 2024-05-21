@@ -1,9 +1,5 @@
 package interpreter;
 
-import java.util.List;
-
-import interpreter.Stmt.MultiVar;
-
 abstract class Expr {
     interface Visitor<R> {
         R visitAssignExpr(Assign expr);

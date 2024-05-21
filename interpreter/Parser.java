@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 
-import interpreter.Stmt.Float;
-
 public class Parser {
     private static class ParseError extends RuntimeException {
     }

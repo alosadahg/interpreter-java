@@ -5,9 +5,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Scanner;
-
-import javax.management.RuntimeErrorException;
 
 import interpreter.Expr.Assign;
 import interpreter.Expr.Binary;
