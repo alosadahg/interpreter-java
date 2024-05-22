@@ -1,7 +1,6 @@
 
 BEGIN CODE
-INT sum = 0
-FLOAT ave
-INT hermi
-sum = sum + 5
+INT aB,bYX=100
+aB = ((bYX*5)/10 + 10)*-1
+DISPLAY: aB & [$] & bYX & [$]
 END CODE

@@ -3,7 +3,6 @@ package interpreter;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.math.BigDecimal;
 import java.util.List;
 
 import interpreter.Expr.Assign;
@@ -105,7 +104,7 @@ class Interpreter implements Expr.Visitor<Object>,
         String Tokentype = "Integer";
 
         environment.define(stmt.name.lexeme, value, Tokentype);
-        System.out.println("Declared variable: " + stmt.name.lexeme + " = " + value);
+        //System.out.println("Declared variable: " + stmt.name.lexeme + " = " + value);
         // System.out.println("var = " + stmt.initializer.accept(this));
         return null;
     }
@@ -187,6 +186,7 @@ class Interpreter implements Expr.Visitor<Object>,
         Object right = expr.right.accept(this);
         Number leftValue = getArithmetic(left);
         Number rightValue = getArithmetic(right);
+        //System.out.println("Left Value: " + leftValue + ", Right Value: " + rightValue);
         switch (expr.operator.type) {
             case NEW_LINE:
                 return (stringify(left) + "\n" + stringify(right));
@@ -196,27 +196,23 @@ class Interpreter implements Expr.Visitor<Object>,
                 if (leftValue instanceof Integer && rightValue instanceof Integer) {
                     return leftValue.intValue() - rightValue.intValue();
                 }
-                return (BigDecimal.valueOf(leftValue.doubleValue())
-                        .subtract(BigDecimal.valueOf(rightValue.doubleValue())));
+                return leftValue.doubleValue() - rightValue.doubleValue();
             case PLUS:
                 if (leftValue instanceof Integer && rightValue instanceof Integer) {
                     return leftValue.intValue() + rightValue.intValue();
                 }
-                return (BigDecimal.valueOf(leftValue.doubleValue()).add(BigDecimal.valueOf(rightValue.doubleValue())));
+                return leftValue.doubleValue() + rightValue.doubleValue();
             case STAR:
+                // System.out.println(rightValue instanceof Integer);
                 if (leftValue instanceof Integer && rightValue instanceof Integer) {
                     return leftValue.intValue() * rightValue.intValue();
                 }
-                return (BigDecimal.valueOf(leftValue.doubleValue())
-                        .multiply(BigDecimal.valueOf(rightValue.doubleValue())));
+                return leftValue.doubleValue() * rightValue.doubleValue();
             case SLASH:
-                if (left instanceof Integer) {
-                    left = Double.parseDouble(left.toString());
+                if (rightValue.doubleValue() == 0) {
+                    throw new RuntimeError(expr.operator, "Division by zero.");
                 }
-                if (right instanceof Integer) {
-                    right = Double.parseDouble(right.toString());
-                }
-                return (double) left / (double) right;
+                return leftValue.doubleValue() / rightValue.doubleValue();
             case MODULO:
                 if (leftValue instanceof Integer && rightValue instanceof Integer) {
                     return leftValue.intValue() % rightValue.intValue();
@@ -264,6 +260,8 @@ class Interpreter implements Expr.Visitor<Object>,
                 return !isEqual(left, right);
             case EQUAL_EVAL:
                 return isEqual(left, right);
+            default:
+                break;
         }
         return null;
     }
@@ -364,14 +362,22 @@ class Interpreter implements Expr.Visitor<Object>,
         switch (expr.operator.type) {
             case MINUS:
                 checkNumberOperand(expr.operator, right);
-                return -(double) right;
+                if(right instanceof Integer) {
+                    return -1 * (int) right;
+                }
+                return -1 * (double) right;
             case PLUS:
+                if(right instanceof Integer) {
+                    return (int) right;
+                }
                 checkNumberOperand(expr.operator, right);
-                return +(double) right;
+                return (double) right;
             case NOT:
                 return !isTruthy(right);
             case NEW_LINE:
                 return "\n" + stringify(right);
+            default:
+                break;
         }
 
         return null;
@@ -381,14 +387,6 @@ class Interpreter implements Expr.Visitor<Object>,
         if (operand instanceof Double || operand instanceof Integer)
             return;
         throw new RuntimeError(operator, "Operand must be a number.");
-    }
-
-    private void checkNumberOperands(Token operator, Object left, Object right) {
-        if (left instanceof Double && right instanceof Double)
-            return;
-        if (left instanceof Integer && right instanceof Integer)
-            return;
-        throw new RuntimeError(operator, "Operand must be numbers.");
     }
 
     private boolean isTruthy(Object object) {

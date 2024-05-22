@@ -14,7 +14,7 @@ public class Lexer {
     private static final List<Character> characters = new ArrayList<>();
     private int start = 0;
     private int current = 0;
-    private int line;
+    private static int line;
 
     static {
         characters.add('(');
@@ -299,4 +299,18 @@ public class Lexer {
         String text = source.substring(start, current);
         tokens.add(new Token(type, text, literal, line));
     }
+
+    public static Map<String, TokenType> getKeywords() {
+        return keywords;
+    }
+
+    public static List<Character> getCharacters() {
+        return characters;
+    }
+
+    public static int getLine() {
+        return line;
+    }
+
+    
 }
