@@ -21,6 +21,8 @@ public class Parser {
     private final List<Token> tokens;
     private Map<String, Object> symbolTable = new HashMap<>();
     private int current = 0;
+    private Boolean variableDeclarationStarted = false;
+    private Boolean executableStarted = false;
     private boolean findEND = false;
     private boolean findBEGIN = false;
 
@@ -172,21 +174,31 @@ public class Parser {
         List<Expr> initializers = new ArrayList<>();
 
         TokenType tokenType;
+
+        if (executableStarted) {
+            Code.error(current, "Cannot declare variable after executable code");
+        }
+
         switch (type) {
             case "FLOAT":
                 tokenType = TokenType.FLOAT;
+                variableDeclarationStarted = true;
                 break;
             case "INT":
                 tokenType = TokenType.INT;
+                variableDeclarationStarted = true;
                 break;
             case "STRING":
                 tokenType = TokenType.STRING;
+                variableDeclarationStarted = true;
                 break;
             case "CHAR":
                 tokenType = TokenType.CHAR;
+                variableDeclarationStarted = true;
                 break;
             case "BOOL":
                 tokenType = TokenType.BOOL;
+                variableDeclarationStarted = true;
                 break;
             default:
                 System.out.println("Unidentifiable variable type");
@@ -282,6 +294,7 @@ public class Parser {
         while (match(GREATER_THAN, GREATER_OR_EQUAL, LESS_THAN, LESS_OR_EQUAL)) {
             Token operator = previous();
             Expr right = term();
+            executableStarted = true;
             expr = new Expr.Binary(expr, operator, right);
         }
 
@@ -294,6 +307,7 @@ public class Parser {
         while (match(MINUS, PLUS, CONCAT, NEW_LINE)) {
             Token operator = previous();
             Expr right = unary();
+            executableStarted = true;
             expr = new Expr.Binary(expr, operator, right);
         }
 
@@ -306,6 +320,7 @@ public class Parser {
         while (match(STAR, SLASH, MODULO, NEW_LINE)) {
             Token operator = previous();
             Expr right = unary();
+            executableStarted = true;
             expr = new Expr.Binary(expr, operator, right);
         }
 
@@ -316,6 +331,7 @@ public class Parser {
         if (match(NOT, MINUS, PLUS, NEW_LINE)) {
             Token operator = previous();
             Expr right = unary();
+            executableStarted = true;
             return new Expr.Unary(operator, right);
         }
 
