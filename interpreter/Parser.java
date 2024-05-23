@@ -21,8 +21,10 @@ public class Parser {
     private final List<Token> tokens;
     private Map<String, Object> symbolTable = new HashMap<>();
     private int current = 0;
-    private boolean findEND = false;
+    private Boolean variableDeclarationStarted = false;
+    private Boolean executableStarted = false;
     private boolean findBEGIN = false;
+    private boolean findEND = false;
 
     public Parser(List<Token> tokens) {
         this.tokens = tokens;
@@ -134,6 +136,7 @@ public class Parser {
         return expressionStatement();
     }
 
+
     private Stmt scanStatement() {
         Token variable = consume(IDENTIFIER, "Expect variable name after SCAN:");
         return new Stmt.Scan(variable, null);
@@ -218,18 +221,23 @@ public class Parser {
 
             switch (tokenType) {
                 case FLOAT:
+                    variableDeclarationStarted = true;
                     stmts.add(new Stmt.Float(name, initializer));
                     break;
                 case INT:
+                    variableDeclarationStarted = true;
                     stmts.add(new Stmt.Int(name, initializer));
                     break;
                 case STRING:
+                    variableDeclarationStarted = true;
                     stmts.add(new Stmt.String(name, initializer));
                     break;
                 case CHAR:
+                    variableDeclarationStarted = true;
                     stmts.add(new Stmt.Char(name, initializer));
                     break;
                 case BOOL:
+                    variableDeclarationStarted = true;
                     stmts.add(new Stmt.Bool(name, initializer));
                     break;
                 default:
@@ -270,6 +278,7 @@ public class Parser {
         while (match(NOT_EQUAL, EQUAL_EVAL)) {
             Token operator = previous();
             Expr right = comparison();
+            executableStarted = true;
             expr = new Expr.Binary(expr, operator, right);
         }
 
@@ -282,6 +291,7 @@ public class Parser {
         while (match(GREATER_THAN, GREATER_OR_EQUAL, LESS_THAN, LESS_OR_EQUAL)) {
             Token operator = previous();
             Expr right = term();
+            executableStarted = true;
             expr = new Expr.Binary(expr, operator, right);
         }
 
@@ -294,6 +304,7 @@ public class Parser {
         while (match(MINUS, PLUS, CONCAT, NEW_LINE)) {
             Token operator = previous();
             Expr right = unary();
+            executableStarted = true;
             expr = new Expr.Binary(expr, operator, right);
         }
 
@@ -306,6 +317,7 @@ public class Parser {
         while (match(STAR, SLASH, MODULO, NEW_LINE)) {
             Token operator = previous();
             Expr right = unary();
+            executableStarted = true;
             expr = new Expr.Binary(expr, operator, right);
         }
 
@@ -329,11 +341,13 @@ public class Parser {
             return new Expr.Literal(true);
         if (match(NULL))
             new Expr.Literal(null);
+
         if (match(TYPEFLOAT, TYPEINT, TYPESTRING, TYPECHAR, ESCAPECHAR)) {
             Token objectToken = previous();
             if (check(NEW_LINE) && !isAtEnd()) {
                 advance();
                 if (!isAtEnd()) {
+                    Token nextToken = peek();
                     return new Expr.Binary(new Expr.Literal(objectToken.getLiteral()),
                             new Token(NEW_LINE, null, "\n", -1), primary());
                 } else {
@@ -359,7 +373,7 @@ public class Parser {
             return new Expr.Grouping(expr);
         }
 
-        throw error(peek(), "Invalid expression.");
+        throw error(peek(), "Expect expression.");
     }
 
     private Token consume(TokenType type, String message) {
@@ -433,8 +447,8 @@ public class Parser {
                 case WHILE:
                 case SCAN:
                 case DISPLAY:
-                default:
-                    break;
+                case END:
+                    return;
             }
 
             advance();
