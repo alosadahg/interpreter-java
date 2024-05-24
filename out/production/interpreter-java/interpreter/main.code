@@ -5,8 +5,12 @@ BEGIN CODE
         BEGIN IF
             DISPLAY: [#] & "YEHAW" $ "EYY"
         END IF
-    ELSE
+    ELSE IF(3<4)
         BEGIN IF
             DISPLAY: "DOODOODOO" & [[] & a & []]
+        END IF
+    ELSE
+        BEGIN IF
+            DISPLAY: "SHARKIE"
         END IF
 END CODE 

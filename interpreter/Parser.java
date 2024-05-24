@@ -181,6 +181,9 @@ public class Parser {
         } 
         Stmt elseBranch = null;
         if (match(ELSE)) {
+            if(match(IF)) {
+                return  ifStatement();
+            }
             if(match(BEGIN) && match(IF)) {
                 elseBranch = statement();
                 if(!(match(END) && match(IF))) {
@@ -188,7 +191,7 @@ public class Parser {
                 }
             } else {
                 consume(NULL, "Expect 'BEGIN IF' before expression");
-            } 
+            }
         }
         return new Stmt.If(condition, thenBranch, elseBranch);
     }
