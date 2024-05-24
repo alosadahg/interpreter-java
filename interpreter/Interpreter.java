@@ -20,6 +20,7 @@ import interpreter.Stmt.Float;
 import interpreter.Stmt.If;
 import interpreter.Stmt.Int;
 import interpreter.Stmt.Scan;
+import interpreter.Stmt.While;
 
 class Interpreter implements Expr.Visitor<Object>,
         Stmt.Visitor<Void>{
@@ -451,6 +452,14 @@ class Interpreter implements Expr.Visitor<Object>,
             execute(stmt.thenBranch);
         } else if(stmt.elseBranch != null) {
             execute(stmt.elseBranch);
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitWhileStmt(While stmt) {
+        while (isTruthy(evaluate(stmt.condition))) {
+            execute(stmt.body);
         }
         return null;
     }

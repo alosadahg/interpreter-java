@@ -147,6 +147,8 @@ public class Parser {
             return ifStatement();
         if (match(DISPLAY) && match(COLON))
             return displayStatement();
+        if (match(WHILE))
+            return whileStatement();
         if (match(BEGIN) && match(CODE)) {
             if (findBEGIN) {
                 consume(NULL, "Cannot allow multiple BEGIN CODE and END CODE declarations");
@@ -194,6 +196,24 @@ public class Parser {
             }
         }
         return new Stmt.If(condition, thenBranch, elseBranch);
+    }
+
+    private Stmt whileStatement() {
+        consume(LEFT_PAREN, "Expect '(' after 'WHILE'.");
+        Expr condition = expression();
+        consume(RIGHT_PAREN, "Expect ')' after while condition.");
+        
+        Stmt body = null;
+        if (match(BEGIN) && match(WHILE)) {
+            body = statement();
+            if(!(match(END) && match(WHILE))) {
+                consume(NULL, "Expect 'END WHILE' after while body.");
+            }
+        } else {
+            consume(NULL, "Expect 'BEGIN WHILE' before while body.");
+        }
+        
+        return new Stmt.While(condition, body);
     }
 
     private Stmt scanStatement() {

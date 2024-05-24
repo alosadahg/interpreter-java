@@ -14,6 +14,8 @@ abstract class Stmt {
 
         R visitIfStmt(If stmt);
 
+        R visitWhileStmt(While stmt);
+
         R visitIntStmt(Int stmt);
 
         R visitFloatStmt(Float stmt);
@@ -46,6 +48,7 @@ abstract class Stmt {
             this.thenBranch = thenBranch;
             this.elseBranch = elseBranch;
         }
+    
 
         @Override
         <R> R accept(Visitor<R> visitor) {
@@ -55,6 +58,21 @@ abstract class Stmt {
         final Expr condition;
         final Stmt thenBranch;
         final Stmt elseBranch;
+    }
+
+    static class While extends Stmt { // Added this class
+        While(Expr condition, Stmt body) {
+            this.condition = condition;
+            this.body = body;
+        }
+
+        @Override
+        <R> R accept(Visitor<R> visitor) {
+            return visitor.visitWhileStmt(this);
+        }
+
+        final Expr condition;
+        final Stmt body;
     }
 
     static class Expression extends Stmt {
