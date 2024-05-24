@@ -4,9 +4,9 @@ BEGIN CODE
         BEGIN IF
             DISPLAY: [#] & "YEHAW" $ "EYY"
         END IF
-    ELSE IF(3<4)
+    ELSE IF(NOT(c>101) OR 3>4)
         BEGIN IF
-            DISPLAY: "DOODOODOO" & [[] & b & []]
+            DISPLAY: "DOODOODOO" & [[] & c & []]
         END IF
     ELSE
         BEGIN IF

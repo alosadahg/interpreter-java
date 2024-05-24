@@ -25,8 +25,6 @@ abstract class Stmt {
         R visitBoolStmt(Bool stmt);
 
         R visitMultiVarStmt(MultiVar stmt);
-
-        R visitWhileStmt(While stmt2);
     }
 
     static class Block extends Stmt {
@@ -191,21 +189,6 @@ abstract class Stmt {
         final List<Token> names;
         final List<Expr> initializers;
     }
-    static class While extends Stmt {
-        While(Expr condition, Stmt body) {
-            this.condition = condition;
-            this.body = body;
-        }
-
-        @Override
-        <R> R accept(Visitor<R> visitor) {
-        return visitor.visitWhileStmt(this);
-        }
-
-        final Expr condition;
-        final Stmt body;
-    }
-
 
     abstract <R> R accept(Visitor<R> visitor);
 }
