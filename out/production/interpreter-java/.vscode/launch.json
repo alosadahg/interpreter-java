@@ -2,6 +2,13 @@
   "configurations": [
     {
       "type": "java",
+      "name": "GenerateAst",
+      "request": "launch",
+      "mainClass": "tool.GenerateAst",
+      "projectName": "interpreter-java_c16eb996"
+    },
+    {
+      "type": "java",
       "name": "Code",
       "request": "launch",
       "mainClass": "interpreter.Code",

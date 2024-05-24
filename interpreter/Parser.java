@@ -18,6 +18,7 @@ public class Parser {
      * Error again with the symbol table cannot take in the literal value
      * can't think anymore will come back if error is still not resolved -Idul
      */
+    private final String source;
     private final List<Token> tokens;
     private Map<String, Object> symbolTable = new HashMap<>();
     private int current = 0;
@@ -25,19 +26,27 @@ public class Parser {
     private Boolean executableStarted = false;
     private boolean findBEGIN = false;
     private boolean findEND = false;
+    private int line = 0;
 
-    public Parser(List<Token> tokens) {
+    public Parser(List<Token> tokens, String source) {
+        this.source = source;
         this.tokens = tokens;
     }
 
     List<Stmt> parse() {
         List<Stmt> statements = new ArrayList<>();
         while (!isAtEnd()) {
-            // statements.add(statement());
+            if(peekChar() == '\n') line++;
             statements.addAll(declaration());
         }
 
         return statements;
+    }
+
+    private char peekChar() {
+        if (isAtEnd())
+            return '\0';
+        return source.charAt(current);
     }
 
     private Expr expression() {
@@ -46,7 +55,7 @@ public class Parser {
     }
 
     private Expr assignment() {
-        Expr expr = equality();
+        Expr expr = or();
 
         if (match(ASSIGN)) {
             Token assign = previous();
@@ -82,6 +91,30 @@ public class Parser {
     // }
     // }
 
+    private Expr or() {
+        Expr expr = and();
+
+        while (match(OR)) {
+            Token operator = previous();
+            Expr right = and();
+            expr = new Expr.Logical(expr, operator, right);
+        }
+
+        return expr;
+    }
+
+    private Expr and() {
+        Expr expr = equality();
+
+        while (match(AND)) {
+            Token operator = previous();
+            Expr right = equality();
+            expr = new Expr.Logical(expr, operator, right);
+        }
+
+        return expr;
+    }
+
     private List<Stmt> declaration() {
         List<Stmt> stmts = new ArrayList<>();
 
@@ -116,10 +149,12 @@ public class Parser {
     }
 
     private Stmt statement() {
+        if (match(IF))
+            return ifStatement();
         if (match(DISPLAY) && match(COLON))
             return displayStatement();
         if (match(BEGIN) && match(CODE)) {
-            if(findBEGIN) {
+            if (findBEGIN) {
                 Code.error(Lexer.getLine(), "Cannot allow multiple BEGIN CODE and END CODE declarations");
                 return null;
             }
@@ -136,6 +171,33 @@ public class Parser {
         return expressionStatement();
     }
 
+    private Stmt ifStatement() {
+        consume(LEFT_PAREN, "Expect '(' after 'IF'");
+        Expr condition = expression();
+        consume(RIGHT_PAREN, "Expect ')' after if condition");
+
+        Stmt thenBranch = null;
+        if(match(BEGIN) && match(IF)) {
+            thenBranch = statement();
+            if(!(match(END) && match(IF))) {
+                Code.report(current, "", "Expect 'END IF' after expression");
+            }
+        } else {
+            Code.report(current, "", "Expect 'BEGIN IF' before expression");
+        } 
+        Stmt elseBranch = null;
+        if (match(ELSE)) {
+            if(match(BEGIN) && match(IF)) {
+                elseBranch = statement();
+                if(!(match(END) && match(IF))) {
+                    Code.report(Lexer.getLine(), "", "Expect 'END IF' after expression");
+                }
+            } else {
+                Code.report(Lexer.getLine(), "", "Expect 'BEGIN IF' before expression");
+            } 
+        }
+        return new Stmt.If(condition, thenBranch, elseBranch);
+    }
 
     private Stmt scanStatement() {
         Token variable = consume(IDENTIFIER, "Expect variable name after SCAN:");
@@ -143,26 +205,27 @@ public class Parser {
     }
 
     // please help me resolve this error
-    /*> INT a, b=100
-        1:INT
-        Initializer value: null
-        Initializer value: interpreter.Expr$Literal@31befd9f
-        [interpreter.Stmt$Int@1c20c684, interpreter.Stmt$Int@1fb3ebeb]
-        Declared variable: a = null
-        Declared variable: b = 100
-        > DISPLAY: a 
-        interpreter.Expr$Variable@6d311334
-        Undefined variable 'a'.
-        [line 0]
-        > INT a
-        1:INT
-        Initializer value: null
-        [interpreter.Stmt$Int@5f184fc6]
-        Declared variable: a = null
-        > DISPLAY: a
-        interpreter.Expr$Variable@3feba861
-        Undefined variable 'a'.
-        [line 0]
+    /*
+     * > INT a, b=100
+     * 1:INT
+     * Initializer value: null
+     * Initializer value: interpreter.Expr$Literal@31befd9f
+     * [interpreter.Stmt$Int@1c20c684, interpreter.Stmt$Int@1fb3ebeb]
+     * Declared variable: a = null
+     * Declared variable: b = 100
+     * > DISPLAY: a
+     * interpreter.Expr$Variable@6d311334
+     * Undefined variable 'a'.
+     * [line 0]
+     * > INT a
+     * 1:INT
+     * Initializer value: null
+     * [interpreter.Stmt$Int@5f184fc6]
+     * Declared variable: a = null
+     * > DISPLAY: a
+     * interpreter.Expr$Variable@3feba861
+     * Undefined variable 'a'.
+     * [line 0]
      */
     private Stmt displayStatement() {
         Expr value = expression();
@@ -271,11 +334,11 @@ public class Parser {
         while (!check(END) && !checkNext(CODE) && !isAtEnd()) {
             statements.addAll(declaration());
         }
-        if((findBEGIN && findEND) || (check(BEGIN) && findBEGIN)) {
+        if ((findBEGIN && findEND) || (check(BEGIN) && findBEGIN)) {
             Code.error(Lexer.getLine(), "Cannot allow multiple BEGIN CODE and END CODE declarations");
             return null;
         }
-    
+
         consume(END, "Expect END after block.");
         consume(CODE, "Expect CODE after END.");
         findEND = true;
@@ -460,6 +523,8 @@ public class Parser {
                 case DISPLAY:
                 case END:
                     return;
+                default:
+                    break;
             }
 
             advance();

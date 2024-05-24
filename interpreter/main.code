@@ -1,7 +1,12 @@
-BEGIN CODE 
-    INT xyz, abc=100 
-    xyz= ((abc *3)/7 + 10) * -1 
-    DISPLAY: [[] & xyz & []] 
-END CODE 
 BEGIN CODE
-END CODE
+    INT a, c = 100
+    a = c
+    IF (1>2)
+        BEGIN IF
+            DISPLAY: [#] & "YEHAW" $ "EYY"
+        END IF
+    ELSE
+        BEGIN IF
+            DISPLAY: "DOODOODOO" & [[] & a & []]
+        END IF
+END CODE 

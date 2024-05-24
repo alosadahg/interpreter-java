@@ -9,6 +9,7 @@ import interpreter.Expr.Assign;
 import interpreter.Expr.Binary;
 import interpreter.Expr.Grouping;
 import interpreter.Expr.Literal;
+import interpreter.Expr.Logical;
 import interpreter.Expr.Unary;
 import interpreter.Expr.Variable;
 import interpreter.Stmt.Block;
@@ -16,11 +17,12 @@ import interpreter.Stmt.Bool;
 import interpreter.Stmt.Char;
 import interpreter.Stmt.Display;
 import interpreter.Stmt.Float;
+import interpreter.Stmt.If;
 import interpreter.Stmt.Int;
 import interpreter.Stmt.Scan;
 
 class Interpreter implements Expr.Visitor<Object>,
-        Stmt.Visitor<Void> {
+        Stmt.Visitor<Void>{
 
     private Environment environment = new Environment();
 
@@ -356,6 +358,20 @@ class Interpreter implements Expr.Visitor<Object>,
     }
 
     @Override
+    public Object visitLogicalExpr(Logical expr) {
+      Object left = evaluate(expr.left);
+  
+      if (expr.operator.type == TokenType.OR) {
+        if (isTruthy(left)) return left;
+      } else {
+        if (!isTruthy(left)) return left;
+      }
+  
+      return evaluate(expr.right);
+    }
+  
+
+    @Override
     public Object visitUnaryExpr(Unary expr) {
         Object right = expr.right.accept(this);
 
@@ -427,5 +443,15 @@ class Interpreter implements Expr.Visitor<Object>,
         }
 
         return object.toString();
+    }
+
+    @Override
+    public Void visitIfStmt(If stmt) {
+        if(isTruthy(evaluate(stmt.condition))) {
+            execute(stmt.thenBranch);
+        } else if(stmt.elseBranch != null) {
+            execute(stmt.elseBranch);
+        }
+        return null;
     }
 }

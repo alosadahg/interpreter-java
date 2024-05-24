@@ -1,6 +1,12 @@
-
 BEGIN CODE
-INT aB,bYX=100
-aB = ((bYX*5)/10 + 10)*-1
-DISPLAY: aB & [$] & bYX & [$]
-END CODE
+    INT a, b, c = 100
+    a = c
+    IF (1>2)
+        BEGIN IF
+            DISPLAY: [#] & "YEHAW" $ "EYY"
+        END IF
+    ELSE
+        BEGIN IF
+            DISPLAY: "DOODOODOO" & [[] & a & []]
+        END IF
+END CODE 
