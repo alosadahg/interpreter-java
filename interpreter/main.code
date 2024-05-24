@@ -1,13 +1,12 @@
 BEGIN CODE
     INT a, c = 100
-    a = c
     IF (1>2)
         BEGIN IF
             DISPLAY: [#] & "YEHAW" $ "EYY"
         END IF
     ELSE IF(3<4)
         BEGIN IF
-            DISPLAY: "DOODOODOO" & [[] & a & []]
+            DISPLAY: "DOODOODOO" & [[] & b & []]
         END IF
     ELSE
         BEGIN IF

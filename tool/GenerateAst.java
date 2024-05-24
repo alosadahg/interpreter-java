@@ -34,7 +34,8 @@ public class GenerateAst {
                 "Float: Token name, Expr initializer",
                 "Char: Token name, Expr initializer",
                 "String: Token name, Expr initializer",
-                "Bool: Token name, Expr initializer"));
+                "Bool: Token name, Expr initializer",
+                "While: Expr condition, Stmt body"));
     }
 
     private static void defineAst(String outputDir, String baseName, List<String> types) throws IOException {

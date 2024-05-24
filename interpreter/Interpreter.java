@@ -20,6 +20,7 @@ import interpreter.Stmt.Float;
 import interpreter.Stmt.If;
 import interpreter.Stmt.Int;
 import interpreter.Stmt.Scan;
+import interpreter.Stmt.While;
 
 class Interpreter implements Expr.Visitor<Object>,
         Stmt.Visitor<Void>{
@@ -40,9 +41,9 @@ class Interpreter implements Expr.Visitor<Object>,
     public Object visitVariableExpr(Variable expr) {
         // return environment.get(expr.name);
         Object value = environment.get(expr.name);
-        if (value == null) {
-            throw new RuntimeError(expr.name, "Undefined variable '" + expr.name.lexeme + "'.");
-        }
+        // if (value == null) {
+        //     throw new RuntimeError(expr.name, "Undefined variable '" + expr.name.lexeme + "'.");
+        // }
         return value;
     }
 
@@ -453,5 +454,11 @@ class Interpreter implements Expr.Visitor<Object>,
             execute(stmt.elseBranch);
         }
         return null;
+    }
+
+    @Override
+    public Void visitWhileStmt(While stmt2) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'visitWhileStmt'");
     }
 }
