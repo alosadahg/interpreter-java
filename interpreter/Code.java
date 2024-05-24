@@ -77,7 +77,7 @@ public class Code {
         if (token.type == TokenType.EOF) {
             report(token.line, "end", message);
         } else {
-            report(token.line, " at '" + token.lexeme + "'", message);
+            report(token.line, "'" + token.lexeme + "'", message);
         }
     }
 

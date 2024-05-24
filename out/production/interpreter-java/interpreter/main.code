@@ -1,5 +1,5 @@
 BEGIN CODE
-    INT a, b, c = 100
+    INT a, c = 100
     a = c
     IF (1>2)
         BEGIN IF

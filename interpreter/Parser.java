@@ -36,18 +36,12 @@ public class Parser {
     List<Stmt> parse() {
         List<Stmt> statements = new ArrayList<>();
         while (!isAtEnd()) {
-            if(peekChar() == '\n') line++;
             statements.addAll(declaration());
         }
 
         return statements;
     }
 
-    private char peekChar() {
-        if (isAtEnd())
-            return '\0';
-        return source.charAt(current);
-    }
 
     private Expr expression() {
         // return equality();
@@ -155,14 +149,14 @@ public class Parser {
             return displayStatement();
         if (match(BEGIN) && match(CODE)) {
             if (findBEGIN) {
-                Code.error(Lexer.getLine(), "Cannot allow multiple BEGIN CODE and END CODE declarations");
+                consume(NULL, "Cannot allow multiple BEGIN CODE and END CODE declarations");
                 return null;
             }
             findBEGIN = true;
             return new Stmt.Block(block());
         }
         if (match(END) && match(CODE) && findEND) {
-            Code.error(Lexer.getLine(), "Cannot allow multiple BEGIN CODE and END CODE declarations");
+            consume(NULL, "Cannot allow multiple BEGIN CODE and END CODE declarations");
             return null;
         }
         if (match(SCAN) && match(COLON))
@@ -180,20 +174,20 @@ public class Parser {
         if(match(BEGIN) && match(IF)) {
             thenBranch = statement();
             if(!(match(END) && match(IF))) {
-                Code.report(current, "", "Expect 'END IF' after expression");
+                consume(NULL, "Expect 'END IF' after expression");
             }
         } else {
-            Code.report(current, "", "Expect 'BEGIN IF' before expression");
+            consume(NULL, "Expect 'BEGIN IF' before expression");
         } 
         Stmt elseBranch = null;
         if (match(ELSE)) {
             if(match(BEGIN) && match(IF)) {
                 elseBranch = statement();
                 if(!(match(END) && match(IF))) {
-                    Code.report(Lexer.getLine(), "", "Expect 'END IF' after expression");
+                    consume(NULL, "Expect 'END IF' after expression");
                 }
             } else {
-                Code.report(Lexer.getLine(), "", "Expect 'BEGIN IF' before expression");
+                consume(NULL, "Expect 'BEGIN IF' before expression");
             } 
         }
         return new Stmt.If(condition, thenBranch, elseBranch);
@@ -335,7 +329,7 @@ public class Parser {
             statements.addAll(declaration());
         }
         if ((findBEGIN && findEND) || (check(BEGIN) && findBEGIN)) {
-            Code.error(Lexer.getLine(), "Cannot allow multiple BEGIN CODE and END CODE declarations");
+            consume(NULL, "Cannot allow multiple BEGIN CODE and END CODE declarations");
             return null;
         }
 
