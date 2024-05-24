@@ -250,7 +250,7 @@ public class Parser {
     }
 
     private List<Stmt> varDeclaration(String type) {
-        System.out.println("1:" + type);
+        // System.out.println("1:" + type);
         List<Token> names = new ArrayList<>();
         List<Expr> initializers = new ArrayList<>();
 
@@ -336,7 +336,7 @@ public class Parser {
                     break;
             }
         }
-        System.out.println(stmts);
+        // System.out.println(stmts);
         return stmts;
     }
 
