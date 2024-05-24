@@ -1,15 +1,8 @@
 BEGIN CODE
-    INT a, c = 100
-    IF (1>2)
-        BEGIN IF
-            DISPLAY: [#] & "YEHAW" $ "EYY"
-        END IF
-    ELSE IF(NOT(c>101) OR 3>4)
-        BEGIN IF
-            DISPLAY: "DOODOODOO" & [[] & c & []]
-        END IF
-    ELSE
-        BEGIN IF
-            DISPLAY: "SHARKIE"
-        END IF
-END CODE 
+    INT a = 10, b = 16
+    WHILE(a < b)
+    BEGIN WHILE
+        DISPLAY: a & " is a value."
+        a = a + 1
+    END WHILE
+END CODE

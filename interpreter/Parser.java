@@ -202,19 +202,21 @@ public class Parser {
         consume(LEFT_PAREN, "Expect '(' after 'WHILE'.");
         Expr condition = expression();
         consume(RIGHT_PAREN, "Expect ')' after while condition.");
-        
-        Stmt body = null;
-        if (match(BEGIN) && match(WHILE)) {
-            body = statement();
-            if(!(match(END) && match(WHILE))) {
-                consume(NULL, "Expect 'END WHILE' after while body.");
-            }
-        } else {
-            consume(NULL, "Expect 'BEGIN WHILE' before while body.");
+    
+        consume(BEGIN, "Expect 'BEGIN' before 'WHILE'.");
+        consume(WHILE, "Expect 'WHILE' after 'BEGIN'.");
+    
+        List<Stmt> body = new ArrayList<>();
+        while (!check(END) || !checkNext(WHILE)) {
+            body.addAll(declaration());
         }
-        
-        return new Stmt.While(condition, body);
+    
+        consume(END, "Expect 'END' after 'WHILE' body.");
+        consume(WHILE, "Expect 'WHILE' after 'END'.");
+    
+        return new Stmt.While(condition, new Stmt.Block(body));
     }
+    
 
     private Stmt scanStatement() {
         Token variable = consume(IDENTIFIER, "Expect variable name after SCAN:");
