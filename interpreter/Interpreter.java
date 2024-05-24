@@ -26,6 +26,7 @@ class Interpreter implements Expr.Visitor<Object>,
         Stmt.Visitor<Void>{
 
     private Environment environment = new Environment();
+    private Boolean errFlag = false;
 
     void interpret(List<Stmt> statements) {
         try {
@@ -33,7 +34,12 @@ class Interpreter implements Expr.Visitor<Object>,
                 execute(statement);
             }
         } catch (RuntimeError error) {
+            errFlag = true;
             Code.runtimeError(error);
+        }
+
+        if(errFlag.equals(false)){
+            System.out.println("No error found");
         }
     }
 
