@@ -144,15 +144,13 @@ public class Parser {
             return whileStatement();
         if (match(BEGIN) && match(CODE)) {
             if (findBEGIN) {
-                consume(NULL, "Cannot allow multiple BEGIN CODE and END CODE declarations");
-                return null;
+                throw error(peek(), "Cannot allow multiple BEGIN CODE and END CODE declarations");
             }
             findBEGIN = true;
             return new Stmt.Block(block());
         }
         if (match(END) && match(CODE) && findEND) {
-            consume(NULL, "Cannot allow multiple BEGIN CODE and END CODE declarations");
-            return null;
+            throw error(peek(), "Cannot allow multiple BEGIN CODE and END CODE declarations");
         }
         if (match(SCAN) && match(COLON))
             return scanStatement();
@@ -169,10 +167,10 @@ public class Parser {
         if(match(BEGIN) && match(IF)) {
             thenBranch = statement();
             if(!(match(END) && match(IF))) {
-                consume(NULL, "Expect 'END IF' after expression");
+                throw error(peek(), "Expect 'END IF' after expression");
             }
         } else {
-            consume(NULL, "Expect 'BEGIN IF' before expression");
+            throw error(peek(), "Expect 'BEGIN IF' before expression");
         } 
         Stmt elseBranch = null;
         if (match(ELSE)) {
@@ -182,10 +180,10 @@ public class Parser {
             if(match(BEGIN) && match(IF)) {
                 elseBranch = statement();
                 if(!(match(END) && match(IF))) {
-                    consume(NULL, "Expect 'END IF' after expression");
+                    throw error(peek(), "Expect 'END IF' after expression");
                 }
             } else {
-                consume(NULL, "Expect 'BEGIN IF' before expression");
+                throw error(peek(), "Expect 'BEGIN IF' before expression");
             }
         }
         return new Stmt.If(condition, thenBranch, elseBranch);
@@ -257,9 +255,13 @@ public class Parser {
                 return null;
         }
 
+        if(!peek().getType().equals(IDENTIFIER)) {
+            throw error(peek(),"Cannot use reserved keywords as variable name.");
+        }
+
         do {
             Token name = consume(IDENTIFIER, "Expect variable name.");
-
+            
             Expr initializer = null;
             if (match(ASSIGN)) {
                 initializer = expression();
@@ -323,8 +325,7 @@ public class Parser {
             statements.addAll(declaration());
         }
         if ((findBEGIN && findEND) || (check(BEGIN) && findBEGIN)) {
-            consume(NULL, "Cannot allow multiple BEGIN CODE and END CODE declarations");
-            return null;
+            throw error(peek(), "Cannot allow multiple BEGIN CODE and END CODE declarations");
         }
 
         consume(END, "Expect END after block.");
