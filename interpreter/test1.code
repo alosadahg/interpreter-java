@@ -1,6 +1,17 @@
 BEGIN CODE
-    INT sum = 0
-    FLOAT ave
-    sum = sum + 5
-    DISPLAY: sum
+CHAR c='a'
+INT b = 1, z
+SCAN: z
+IF(c=='a')
+BEGIN IF
+  b=1
+  WHILE(b<z)
+   BEGIN WHILE
+    IF(b%2 == 0)
+     BEGIN IF
+      DISPLAY: b
+     END IF
+     b = b + 1
+   END WHILE
+END IF
 END CODE

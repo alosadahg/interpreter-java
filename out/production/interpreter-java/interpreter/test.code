@@ -1,0 +1,6 @@
+BEGIN CODE
+    BOOL TrUE = "TRUE" 
+    BOOL true = "TRUE"
+    DISPLAY: TrUE & " this is TrUE"
+    DISPLAY: true & " this is true"
+END CODE

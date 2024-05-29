@@ -11,13 +11,6 @@ public class Parser {
     private static class ParseError extends RuntimeException {
     }
 
-    /*
-     * Added symbol table, helps with error printing undefined variable even though
-     * variable is null, check
-     * varDeclaration for more information about the declaration
-     * Error again with the symbol table cannot take in the literal value
-     * can't think anymore will come back if error is still not resolved -Idul
-     */
     private final String source;
     private final List<Token> tokens;
     private Map<String, Object> symbolTable = new HashMap<>();
@@ -216,36 +209,12 @@ public class Parser {
     
         return new Stmt.While(condition, new Stmt.Block(body));
     }
-    
 
     private Stmt scanStatement() {
         Token variable = consume(IDENTIFIER, "Expect variable name after SCAN:");
         return new Stmt.Scan(variable, null);
     }
 
-    // please help me resolve this error
-    /*
-     * > INT a, b=100
-     * 1:INT
-     * Initializer value: null
-     * Initializer value: interpreter.Expr$Literal@31befd9f
-     * [interpreter.Stmt$Int@1c20c684, interpreter.Stmt$Int@1fb3ebeb]
-     * Declared variable: a = null
-     * Declared variable: b = 100
-     * > DISPLAY: a
-     * interpreter.Expr$Variable@6d311334
-     * Undefined variable 'a'.
-     * [line 0]
-     * > INT a
-     * 1:INT
-     * Initializer value: null
-     * [interpreter.Stmt$Int@5f184fc6]
-     * Declared variable: a = null
-     * > DISPLAY: a
-     * interpreter.Expr$Variable@3feba861
-     * Undefined variable 'a'.
-     * [line 0]
-     */
     private Stmt displayStatement() {
         Expr value = expression();
         return new Stmt.Display(value);
@@ -534,6 +503,7 @@ public class Parser {
 
             switch (peek().type) {
                 case INT:
+                case FLOAT:
                 case TYPECHAR:
                 case BOOL:
                 case IF:

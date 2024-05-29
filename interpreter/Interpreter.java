@@ -27,6 +27,7 @@ class Interpreter implements Expr.Visitor<Object>,
 
     private Environment environment = new Environment();
     private Boolean errFlag = false;
+    private Boolean usedDisplay = false;
 
     void interpret(List<Stmt> statements) {
         try {
@@ -38,7 +39,7 @@ class Interpreter implements Expr.Visitor<Object>,
             Code.runtimeError(error);
         }
 
-        if(errFlag.equals(false)){
+        if(errFlag.equals(false) & usedDisplay.equals(false)){
             System.out.println("Run successfully without errors.");
         }
     }
@@ -205,23 +206,23 @@ class Interpreter implements Expr.Visitor<Object>,
                 if (leftValue instanceof Integer && rightValue instanceof Integer) {
                     return leftValue.intValue() - rightValue.intValue();
                 }
-                return leftValue.doubleValue() - rightValue.doubleValue();
+                return leftValue.floatValue() - rightValue.floatValue();
             case PLUS:
                 if (leftValue instanceof Integer && rightValue instanceof Integer) {
                     return leftValue.intValue() + rightValue.intValue();
                 }
-                return leftValue.doubleValue() + rightValue.doubleValue();
+                return leftValue.floatValue() + rightValue.floatValue();
             case STAR:
                 // System.out.println(rightValue instanceof Integer);
                 if (leftValue instanceof Integer && rightValue instanceof Integer) {
                     return leftValue.intValue() * rightValue.intValue();
                 }
-                return leftValue.doubleValue() * rightValue.doubleValue();
+                return leftValue.floatValue() * rightValue.floatValue();
             case SLASH:
-                if (rightValue.doubleValue() == 0) {
+                if (rightValue.floatValue() == 0) {
                     throw new RuntimeError(expr.operator, "Division by zero.");
                 }
-                return leftValue.doubleValue() / rightValue.doubleValue();
+                return leftValue.floatValue() / rightValue.floatValue();
             case MODULO:
                 if (leftValue instanceof Integer && rightValue instanceof Integer) {
                     return leftValue.intValue() % rightValue.intValue();
@@ -298,6 +299,7 @@ class Interpreter implements Expr.Visitor<Object>,
     public Void visitDisplayStmt(Display stmt) {
         Object value = evaluate(stmt.expression);
         System.out.println(stringify(value));
+        usedDisplay = true;
         return null;
     }
 
@@ -343,7 +345,12 @@ class Interpreter implements Expr.Visitor<Object>,
                 return null;
             }
 
-            if (tokenType.equals(scannedValue.getClass().getSimpleName())) {
+            if(tokenType.equals("Float") && scannedValue instanceof Double) {
+                environment.assign(stmt.name, scannedValue);
+                return null;
+            }
+
+            if(tokenType.equals(scannedValue.getClass().getSimpleName())) {
                 environment.assign(stmt.name, scannedValue);
                 return null;
             }
@@ -469,4 +476,5 @@ class Interpreter implements Expr.Visitor<Object>,
         }
         return null;
     }
+
 }
