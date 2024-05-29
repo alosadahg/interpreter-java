@@ -39,7 +39,7 @@ class Interpreter implements Expr.Visitor<Object>,
         }
 
         if(errFlag.equals(false)){
-            System.out.println("No error found");
+            System.out.println("Run successfully without errors.");
         }
     }
 
