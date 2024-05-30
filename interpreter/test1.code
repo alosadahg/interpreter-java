@@ -1,5 +1,33 @@
 BEGIN CODE
-    BOOL a
-    SCAN: a
-    DISPLAY: NOT a
+INT a
+CHAR p = 'p'
+CHAR n = 'n'
+CHAR z = 'z'
+SCAN: a
+IF(a>0)
+  BEGIN IF
+   IF(a%2==0)
+    BEGIN IF
+     DISPLAY: p & 'e'
+    END IF
+   ELSE
+    BEGIN IF
+     DISPLAY: p & 'o'
+    END IF
+  END IF
+ELSE IF(a<0)
+   BEGIN IF
+   IF(a%2==0)
+    BEGIN IF
+     DISPLAY: n & 'e'
+    END IF
+   ELSE
+    BEGIN IF
+     DISPLAY: n & 'o'
+    END IF
+END IF
+ELSE
+  BEGIN IF
+   DISPLAY: z
+  END IF
 END CODE

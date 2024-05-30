@@ -163,41 +163,43 @@ public class Parser {
         consume(LEFT_PAREN, "Expect '(' after 'IF'");
         Expr condition = expression();
         consume(RIGHT_PAREN, "Expect ')' after if condition");
-
-        Stmt thenBranch = null;
-        if(match(BEGIN) && match(IF)) {
+        Stmt thenBranch = parseBranch();
+        Stmt elseBranch = parseElseIfOrElse();
+    
+        return new Stmt.If(condition, thenBranch, elseBranch);
+    }
+    
+    private Stmt parseBranch() {
+        if (match(BEGIN) && match(IF)) {
             List<Stmt> statements = new ArrayList<>();
             while (!check(END) && !checkNext(IF) && !isAtEnd()) {
                 statements.addAll(declaration());
             }
-            if(!(match(END) && match(IF))) {
-                throw error(peek(), "Expect 'END IF' after expression");
+            if (!(match(END) && match(IF))) {
+                throw error(peek(), "Expect 'END IF' after block");
             }
-            thenBranch = new Stmt.Block(statements);
+            return new Stmt.Block(statements);
         } else {
-            throw error(peek(), "Expect 'BEGIN IF' before expression");
-        } 
-        Stmt elseBranch = null;
+            throw error(peek(), "Expect 'BEGIN IF' before block");
+        }
+    }
+    
+    private Stmt parseElseIfOrElse() {
         if (match(ELSE)) {
-            if(match(IF)) {
-                return  ifStatement();
-            }
-            if(match(BEGIN) && match(IF)) {
-                List<Stmt> statements = new ArrayList<>();
-                while (!check(END) && !checkNext(IF) && !isAtEnd()) {
-                    statements.addAll(declaration());
-                }
-                if(!(match(END) && match(IF))) {
-                    throw error(peek(), "Expect 'END IF' after expression");
-                }
-                elseBranch = new Stmt.Block(statements);
+            if (match(IF)) {
+                consume(LEFT_PAREN, "Expect '(' after 'ELSE IF'");
+                Expr elseIfCondition = expression();
+                consume(RIGHT_PAREN, "Expect ')' after else if condition");
+                Stmt elseIfThenBranch = parseBranch();
+                Stmt elseBranch = parseElseIfOrElse(); 
+                return new Stmt.If(elseIfCondition, elseIfThenBranch, elseBranch);
             } else {
-                throw error(peek(), "Expect 'BEGIN IF' before expression");
+                return parseBranch();
             }
         }
-        return new Stmt.If(condition, thenBranch, elseBranch);
+        return null;
     }
-
+    
     private Stmt whileStatement() {
         consume(LEFT_PAREN, "Expect '(' after 'WHILE'.");
         Expr condition = expression();
