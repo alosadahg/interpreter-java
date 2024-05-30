@@ -230,7 +230,7 @@ public class Parser {
         }  else {
             // If the next token is not a colon, parse the expression as usual
             Expr value = expression();
-            System.out.println(peek().toString());
+            //System.out.println(peek().toString());
             return new Stmt.Display(value);
         }
     }
