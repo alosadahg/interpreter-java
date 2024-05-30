@@ -136,6 +136,8 @@ public class Parser {
     }
 
     private Stmt statement() {
+        if(peek().getType().equals(IDENTIFIER)) 
+            return expressionStatement();
         if (match(IF))
             return ifStatement();
         if (match(DISPLAY) && match(COLON))
@@ -154,7 +156,6 @@ public class Parser {
         }
         if (match(SCAN) && match(COLON))
             return scanStatement();
-
         return expressionStatement();
     }
 
@@ -165,10 +166,14 @@ public class Parser {
 
         Stmt thenBranch = null;
         if(match(BEGIN) && match(IF)) {
-            thenBranch = statement();
+            List<Stmt> statements = new ArrayList<>();
+            while (!check(END) && !checkNext(IF) && !isAtEnd()) {
+                statements.addAll(declaration());
+            }
             if(!(match(END) && match(IF))) {
                 throw error(peek(), "Expect 'END IF' after expression");
             }
+            thenBranch = new Stmt.Block(statements);
         } else {
             throw error(peek(), "Expect 'BEGIN IF' before expression");
         } 
@@ -178,10 +183,14 @@ public class Parser {
                 return  ifStatement();
             }
             if(match(BEGIN) && match(IF)) {
-                elseBranch = statement();
+                List<Stmt> statements = new ArrayList<>();
+                while (!check(END) && !checkNext(IF) && !isAtEnd()) {
+                    statements.addAll(declaration());
+                }
                 if(!(match(END) && match(IF))) {
                     throw error(peek(), "Expect 'END IF' after expression");
                 }
+                elseBranch = new Stmt.Block(statements);
             } else {
                 throw error(peek(), "Expect 'BEGIN IF' before expression");
             }

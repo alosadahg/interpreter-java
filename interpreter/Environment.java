@@ -52,7 +52,7 @@ public class Environment {
 
     public String getTokenFromName(String name) {
         String tokenType = token.get(name);
-        System.out.println("Token for name '" + name + "': " + tokenType);
+        //System.out.println("Token for name '" + name + "': " + tokenType);
         return tokenType;
     }
 
