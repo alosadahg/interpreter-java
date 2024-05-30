@@ -225,14 +225,14 @@ public class Parser {
     }
 
     private Stmt displayStatement() {
-        if (match(NEW_LINE)) {
-            return new Stmt.Display(new Expr.Literal(""));
-        }  else {
+        // if (match(NEW_LINE)) {
+        //     return new Stmt.Display(new Expr.Literal(""));
+        // }  else {
             // If the next token is not a colon, parse the expression as usual
             Expr value = expression();
             //System.out.println(peek().toString());
             return new Stmt.Display(value);
-        }
+        // }
     }
     
 

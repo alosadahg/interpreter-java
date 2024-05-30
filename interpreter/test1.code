@@ -4,7 +4,7 @@ SCAN: a
 SCAN: b
 WHILE(a<b)
   BEGIN WHILE
-   DISPLAY: $ & a
+   DISPLAY: a & $
    a = a + 1
   END WHILE
 END CODE
