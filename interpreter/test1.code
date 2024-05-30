@@ -1,33 +1,10 @@
 BEGIN CODE
-INT a
-CHAR p = 'p'
-CHAR n = 'n'
-CHAR z = 'z'
+INT a, b
 SCAN: a
-IF(a>0)
-  BEGIN IF
-   IF(a%2==0)
-    BEGIN IF
-     DISPLAY: p & 'e'
-    END IF
-   ELSE
-    BEGIN IF
-     DISPLAY: p & 'o'
-    END IF
-  END IF
-ELSE IF(a<0)
-   BEGIN IF
-   IF(a%2==0)
-    BEGIN IF
-     DISPLAY: n & 'e'
-    END IF
-   ELSE
-    BEGIN IF
-     DISPLAY: n & 'o'
-    END IF
-END IF
-ELSE
-  BEGIN IF
-   DISPLAY: z
-  END IF
+SCAN: b
+WHILE(a<b)
+  BEGIN WHILE
+   DISPLAY: a & $
+   a = a + 1
+  END WHILE
 END CODE

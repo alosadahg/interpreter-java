@@ -206,8 +206,8 @@ class Interpreter implements Expr.Visitor<Object>,
         Number rightValue = getArithmetic(right);
         //System.out.println("Left Value: " + leftValue + ", Right Value: " + rightValue);
         switch (expr.operator.type) {
-            case NEW_LINE:
-                return (stringify(left) + "\n" + stringify(right));
+            // case NEW_LINE:
+            //     return (stringify(left) + "\n" + stringify(right));
             case CONCAT:
                 return stringify(left) + stringify(right);
             case MINUS:
@@ -377,9 +377,9 @@ class Interpreter implements Expr.Visitor<Object>,
     @Override
     public Object visitLiteralExpr(Literal expr) {
         // System.out.println(expr.value.getClass().getName());
-        if (expr.value.equals("\n")) {
-            System.out.println();
-        }
+        // if (expr.value.equals("\n")) {
+        //     System.out.println();
+        // }
         return expr.value;
     }
 
@@ -416,8 +416,8 @@ class Interpreter implements Expr.Visitor<Object>,
                 return (double) right;
             case NOT:
                 return !isTruthy(right);
-            case NEW_LINE:
-                return "\n" + stringify(right);
+            // case NEW_LINE:
+            //     return "\n" + stringify(right);
             default:
                 break;
         }

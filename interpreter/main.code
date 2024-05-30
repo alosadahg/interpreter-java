@@ -1,8 +1,16 @@
 BEGIN CODE
-    INT a = 10, b = 16
-    WHILE(a < b)
+INT a = 1, b, c
+CHAR as = 'x'
+SCAN:c
+WHILE(a<c)
+  BEGIN WHILE
+   b = 1
+   WHILE(b<a)
     BEGIN WHILE
-        DISPLAY: a & " is a value."
-        a = a + 1
+      DISPLAY:as
+      b = b + 1
     END WHILE
+      DISPLAY: $
+      a = a + 1
+  END WHILE
 END CODE

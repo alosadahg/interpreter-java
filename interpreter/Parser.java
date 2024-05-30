@@ -209,7 +209,7 @@ public class Parser {
         consume(WHILE, "Expect 'WHILE' after 'BEGIN'.");
     
         List<Stmt> body = new ArrayList<>();
-        while (!check(END) || !checkNext(WHILE)) {
+        while (!check(END) && !checkNext(WHILE) && !isAtEnd()) {
             body.addAll(declaration());
         }
     
@@ -225,9 +225,16 @@ public class Parser {
     }
 
     private Stmt displayStatement() {
-        Expr value = expression();
-        return new Stmt.Display(value);
+        if (match(NEW_LINE)) {
+            return new Stmt.Display(new Expr.Literal(""));
+        }  else {
+            // If the next token is not a colon, parse the expression as usual
+            Expr value = expression();
+            System.out.println(peek().toString());
+            return new Stmt.Display(value);
+        }
     }
+    
 
     private List<Stmt> varDeclaration(String type) {
         // System.out.println("1:" + type);
@@ -374,7 +381,7 @@ public class Parser {
     private Expr term() {
         Expr expr = factor();
 
-        while (match(MINUS, PLUS, CONCAT, NEW_LINE)) {
+        while (match(MINUS, PLUS, CONCAT)) {
             Token operator = previous();
             Expr right = unary();
             executableStarted = true;  
@@ -387,7 +394,7 @@ public class Parser {
     private Expr factor() {
         Expr expr = unary();
 
-        while (match(STAR, SLASH, MODULO, NEW_LINE)) {
+        while (match(STAR, SLASH, MODULO)) {
             Token operator = previous();
             Expr right = unary();
             executableStarted = true;
@@ -398,7 +405,7 @@ public class Parser {
     }
 
     private Expr unary() {
-        if (match(NOT, MINUS, PLUS, NEW_LINE)) {
+        if (match(NOT, MINUS, PLUS)) {
             Token operator = previous();
             Expr right = unary();
             executableStarted = true;
@@ -415,27 +422,29 @@ public class Parser {
             return new Expr.Literal(true);
         if (match(NULL))
             new Expr.Literal(null);
-
+        if(match(NEW_LINE)) {
+            return new Expr.Literal("\n");
+        }
         if (match(TYPEFLOAT, TYPEINT, TYPESTRING, TYPECHAR, ESCAPECHAR)) {
             Token objectToken = previous();
-            if (check(NEW_LINE) && !isAtEnd()) {
-                advance();
-                if (!isAtEnd()) {
-                    Token nextToken = peek();
-                    return new Expr.Binary(new Expr.Literal(objectToken.getLiteral()),
-                            new Token(NEW_LINE, null, "\n", -1), primary());
-                } else {
-                    //System.out.print(objectToken.getLiteral());
-                    return new Expr.Literal(new Token(NEW_LINE, null, null, -1));
-                }
-            } else {
+            // if (check(NEW_LINE) && !isAtEnd()) {
+            //     advance();
+            //     if (!isAtEnd()) {
+            //         Token nextToken = peek();
+            //         return new Expr.Binary(new Expr.Literal(objectToken.getLiteral()),
+            //                 new Token(NEW_LINE, null, "\n", -1), primary());
+            //     } else {
+            //         //System.out.print(objectToken.getLiteral());
+            //         return new Expr.Literal(new Token(NEW_LINE, null, null, -1));
+            //     }
+            // } else {
                 return new Expr.Literal(objectToken.getLiteral());
-            }
+            // }
         }
 
-        if (previous().type.equals(NEW_LINE)) {
-            return new Expr.Literal("");
-        }
+        // if (previous().type.equals(NEW_LINE)) {
+        //     return new Expr.Literal("");
+        // }
 
         if (match(IDENTIFIER)) {
             return new Expr.Variable(previous());
