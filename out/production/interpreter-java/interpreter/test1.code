@@ -1,5 +1,10 @@
 BEGIN CODE
-    INT a=40, b
-    SCAN: b
-    DISPLAY:  [&] & [#] & a + 5 & [&] & b & [&]
+INT a, b
+SCAN: a
+SCAN: b
+WHILE(a<b)
+  BEGIN WHILE
+   DISPLAY: $ & a
+   a = a + 1
+  END WHILE
 END CODE

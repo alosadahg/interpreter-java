@@ -225,14 +225,14 @@ public class Parser {
     }
 
     private Stmt displayStatement() {
-        if (match(NEW_LINE)) {
-            return new Stmt.Display(new Expr.Literal(""));
-        }  else {
+//        if (match(NEW_LINE)) {
+//            return new Stmt.Display(new Expr.Literal(""));
+//        }  else {
             // If the next token is not a colon, parse the expression as usual
             Expr value = expression();
             //System.out.println(peek().toString());
             return new Stmt.Display(value);
-        }
+//        }
     }
     
 
@@ -422,9 +422,7 @@ public class Parser {
             return new Expr.Literal(true);
         if (match(NULL))
             new Expr.Literal(null);
-        if(match(NEW_LINE)) {
-            return new Expr.Literal("\n");
-        }
+
         if (match(TYPEFLOAT, TYPEINT, TYPESTRING, TYPECHAR, ESCAPECHAR)) {
             Token objectToken = previous();
             // if (check(NEW_LINE) && !isAtEnd()) {
@@ -454,6 +452,9 @@ public class Parser {
             Expr expr = expression();
             consume(RIGHT_PAREN, "Expect ')' after the expression.");
             return new Expr.Grouping(expr);
+        }
+        if(match(NEW_LINE)) {
+            return new Expr.Literal("\n");
         }
 
         throw error(peek(), "Expect expression.");

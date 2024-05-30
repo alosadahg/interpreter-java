@@ -306,6 +306,9 @@ class Interpreter implements Expr.Visitor<Object>,
     @Override
     public Void visitDisplayStmt(Display stmt) {
         Object value = evaluate(stmt.expression);
+        if(value.equals("\n")) {
+            System.out.print(stringify(value));
+        } else
         System.out.println(stringify(value));
         usedDisplay = true;
         return null;
