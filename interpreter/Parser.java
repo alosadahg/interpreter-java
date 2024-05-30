@@ -35,7 +35,6 @@ public class Parser {
         return statements;
     }
 
-
     private Expr expression() {
         // return equality();
         return assignment();
@@ -136,7 +135,7 @@ public class Parser {
     }
 
     private Stmt statement() {
-        if(peek().getType().equals(IDENTIFIER)) 
+        if (peek().getType().equals(IDENTIFIER))
             return expressionStatement();
         if (match(IF))
             return ifStatement();
@@ -165,10 +164,10 @@ public class Parser {
         consume(RIGHT_PAREN, "Expect ')' after if condition");
         Stmt thenBranch = parseBranch();
         Stmt elseBranch = parseElseIfOrElse();
-    
+
         return new Stmt.If(condition, thenBranch, elseBranch);
     }
-    
+
     private Stmt parseBranch() {
         if (match(BEGIN) && match(IF)) {
             List<Stmt> statements = new ArrayList<>();
@@ -183,7 +182,7 @@ public class Parser {
             throw error(peek(), "Expect 'BEGIN IF' before block");
         }
     }
-    
+
     private Stmt parseElseIfOrElse() {
         if (match(ELSE)) {
             if (match(IF)) {
@@ -191,7 +190,7 @@ public class Parser {
                 Expr elseIfCondition = expression();
                 consume(RIGHT_PAREN, "Expect ')' after else if condition");
                 Stmt elseIfThenBranch = parseBranch();
-                Stmt elseBranch = parseElseIfOrElse(); 
+                Stmt elseBranch = parseElseIfOrElse();
                 return new Stmt.If(elseIfCondition, elseIfThenBranch, elseBranch);
             } else {
                 return parseBranch();
@@ -199,23 +198,23 @@ public class Parser {
         }
         return null;
     }
-    
+
     private Stmt whileStatement() {
         consume(LEFT_PAREN, "Expect '(' after 'WHILE'.");
         Expr condition = expression();
         consume(RIGHT_PAREN, "Expect ')' after while condition.");
-    
+
         consume(BEGIN, "Expect 'BEGIN' before 'WHILE'.");
         consume(WHILE, "Expect 'WHILE' after 'BEGIN'.");
-    
+
         List<Stmt> body = new ArrayList<>();
         while (!check(END) && !checkNext(WHILE) && !isAtEnd()) {
             body.addAll(declaration());
         }
-    
+
         consume(END, "Expect 'END' after 'WHILE' body.");
         consume(WHILE, "Expect 'WHILE' after 'END'.");
-    
+
         return new Stmt.While(condition, new Stmt.Block(body));
     }
 
@@ -225,16 +224,9 @@ public class Parser {
     }
 
     private Stmt displayStatement() {
-//        if (match(NEW_LINE)) {
-//            return new Stmt.Display(new Expr.Literal(""));
-//        }  else {
-            // If the next token is not a colon, parse the expression as usual
-            Expr value = expression();
-            //System.out.println(peek().toString());
-            return new Stmt.Display(value);
-//        }
+        Expr value = expression();
+        return new Stmt.Display(value);
     }
-    
 
     private List<Stmt> varDeclaration(String type) {
         // System.out.println("1:" + type);
@@ -273,13 +265,13 @@ public class Parser {
                 return null;
         }
 
-        if(!peek().getType().equals(IDENTIFIER)) {
-            throw error(peek(),"Cannot use reserved keywords as variable name.");
+        if (!peek().getType().equals(IDENTIFIER)) {
+            throw error(peek(), "Cannot use reserved keywords as variable name.");
         }
 
         do {
             Token name = consume(IDENTIFIER, "Expect variable name.");
-            
+
             Expr initializer = null;
             if (match(ASSIGN)) {
                 initializer = expression();
@@ -384,7 +376,7 @@ public class Parser {
         while (match(MINUS, PLUS, CONCAT)) {
             Token operator = previous();
             Expr right = unary();
-            executableStarted = true;  
+            executableStarted = true;
             expr = new Expr.Binary(expr, operator, right);
         }
 
@@ -426,22 +418,22 @@ public class Parser {
         if (match(TYPEFLOAT, TYPEINT, TYPESTRING, TYPECHAR, ESCAPECHAR)) {
             Token objectToken = previous();
             // if (check(NEW_LINE) && !isAtEnd()) {
-            //     advance();
-            //     if (!isAtEnd()) {
-            //         Token nextToken = peek();
-            //         return new Expr.Binary(new Expr.Literal(objectToken.getLiteral()),
-            //                 new Token(NEW_LINE, null, "\n", -1), primary());
-            //     } else {
-            //         //System.out.print(objectToken.getLiteral());
-            //         return new Expr.Literal(new Token(NEW_LINE, null, null, -1));
-            //     }
+            // advance();
+            // if (!isAtEnd()) {
+            // Token nextToken = peek();
+            // return new Expr.Binary(new Expr.Literal(objectToken.getLiteral()),
+            // new Token(NEW_LINE, null, "\n", -1), primary());
             // } else {
-                return new Expr.Literal(objectToken.getLiteral());
+            // //System.out.print(objectToken.getLiteral());
+            // return new Expr.Literal(new Token(NEW_LINE, null, null, -1));
+            // }
+            // } else {
+            return new Expr.Literal(objectToken.getLiteral());
             // }
         }
 
         // if (previous().type.equals(NEW_LINE)) {
-        //     return new Expr.Literal("");
+        // return new Expr.Literal("");
         // }
 
         if (match(IDENTIFIER)) {
@@ -453,7 +445,7 @@ public class Parser {
             consume(RIGHT_PAREN, "Expect ')' after the expression.");
             return new Expr.Grouping(expr);
         }
-        if(match(NEW_LINE)) {
+        if (match(NEW_LINE)) {
             return new Expr.Literal("\n");
         }
 
