@@ -1,17 +1,5 @@
 BEGIN CODE
-CHAR c='a'
-INT b = 1, z
-SCAN: z
-IF(c=='a')
-BEGIN IF
-  b=1
-  WHILE(b<z)
-   BEGIN WHILE
-    IF(b%2 == 0)
-     BEGIN IF
-      DISPLAY: b
-     END IF
-     b = b + 1
-   END WHILE
-END IF
+    INT a=40, b
+    SCAN: b
+    DISPLAY:  [&] & [#] & a + 5 & [&] & b & [&]
 END CODE

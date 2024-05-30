@@ -1,17 +1,5 @@
 BEGIN CODE
-CHAR c='a'
-INT b = 1, z
-SCAN: z
-IF(c=='b')
-  BEGIN IF
-    b=1
-    DISPLAY: "b = " & b
-    DISPLAY: z
-  END IF
-ELSE
-  BEGIN IF
-    DISPLAY: "z = " & z
-    z=1
-    DISPLAY: z
-  END IF
+    BOOL a
+    SCAN: a
+    DISPLAY: NOT a
 END CODE

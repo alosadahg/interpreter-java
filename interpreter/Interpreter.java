@@ -59,7 +59,7 @@ class Interpreter implements Expr.Visitor<Object>,
         Object value = null;
         if (stmt.initializer != null) {
             value = evaluate(stmt.initializer);
-        }
+        } 
 
         String Tokentype = "Boolean";
 
@@ -92,7 +92,11 @@ class Interpreter implements Expr.Visitor<Object>,
             if (!(value instanceof Double)) {
                 throw new RuntimeError(stmt.name, "Input must be a float");
             }
-        }
+        } 
+        // uncomment when float is required to be initialized to 0.0 by default
+        // else {
+        //     value = 0.0;
+        // }
 
         String Tokentype = "Float";
 
@@ -109,7 +113,11 @@ class Interpreter implements Expr.Visitor<Object>,
             if (!(value instanceof Integer)) {
                 throw new RuntimeError(stmt.name, "Input must be an Integer");
             }
-        }
+        } 
+        // uncomment when int is required to be initialized to 0 by default
+        // else {
+        //     value = 0;
+        // }
 
         String Tokentype = "Integer";
 
@@ -310,14 +318,14 @@ class Interpreter implements Expr.Visitor<Object>,
 
         try {
             Integer intValue = Integer.parseInt(line);
-            System.out.println("scanInput : " + intValue);
+            // System.out.println("scanInput : " + intValue);
             return intValue;
         } catch (NumberFormatException ignored) {
         }
 
         try {
             Double doubleValue = Double.parseDouble(line);
-            System.out.println("scanInput : " + doubleValue);
+            // System.out.println("scanInput : " + doubleValue);
             return doubleValue;
         } catch (NumberFormatException ignored) {
         }
@@ -341,7 +349,11 @@ class Interpreter implements Expr.Visitor<Object>,
             // Check the hashMap under Environment to debug
             // Problem: the saved token type in the hashmap for type BOOL is character
             if (tokenType.equals("Boolean") & (scannedValue.equals("TRUE") || scannedValue.equals("FALSE"))) {
-                environment.assign(stmt.name, scannedValue);
+                if(scannedValue.equals("TRUE")) {
+                    environment.assign(stmt.name, true);
+                } else {
+                    environment.assign(stmt.name, false);
+                }
                 return null;
             }
 

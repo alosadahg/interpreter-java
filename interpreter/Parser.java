@@ -375,7 +375,7 @@ public class Parser {
         while (match(MINUS, PLUS, CONCAT, NEW_LINE)) {
             Token operator = previous();
             Expr right = unary();
-            executableStarted = true;
+            executableStarted = true;  
             expr = new Expr.Binary(expr, operator, right);
         }
 
@@ -423,7 +423,7 @@ public class Parser {
                     return new Expr.Binary(new Expr.Literal(objectToken.getLiteral()),
                             new Token(NEW_LINE, null, "\n", -1), primary());
                 } else {
-                    System.out.print(objectToken.getLiteral());
+                    //System.out.print(objectToken.getLiteral());
                     return new Expr.Literal(new Token(NEW_LINE, null, null, -1));
                 }
             } else {
